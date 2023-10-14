@@ -33,22 +33,13 @@ namespace SpotDLWin
         /// <param name="e"></param>
         private void Download_Click(object sender, EventArgs e)
         {
-            string userName = Environment.UserName;
-            string userProfileDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\";
-            string changePath = "cd " + userProfileDirectory;
-            
             string Url = "spotdl " + inputTextBox.Text.Trim();
             if (!string.IsNullOrEmpty(Url))
             {
 
-                ResultText.AppendText(changePath);
                 ResultText.AppendText(Url);
 
-                //CDコマンド実行
-                //string Result = ExecuteCommand(changePath);
-                //結果をリッチテキストボックスに表示
-                //ResultText.AppendText(Result);
-
+         
                 //MP3ダウンロード実行
                 string Result = ExecuteCommand(Url);
                 //結果をリッチテキストボックスに表示
@@ -124,21 +115,24 @@ namespace SpotDLWin
         /// <returns>True:成功、False：失敗</returns>
         private bool CopyMp3File()
         {
-            string userName = Environment.UserName;
-            string userProfileDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            string AppPath = Application.StartupPath + "\\";
             string destinationFolder = textOutDir.Text.Trim(); // コピー先フォルダ
 
             try
             {
-                if (Directory.Exists(userProfileDirectory) && Directory.Exists(destinationFolder))
+                if (Directory.Exists(AppPath) && Directory.Exists(destinationFolder))
                 {
-                    string[] mp3Files = Directory.GetFiles(userProfileDirectory, "*.mp3");
+                    string[] mp3Files = Directory.GetFiles(AppPath, "*.mp3");
 
                     foreach (string mp3File in mp3Files)
                     {
                         string fileName = Path.GetFileName(mp3File);
                         string destinationPath = Path.Combine(destinationFolder, fileName);
 
+                        if (File.Exists(destinationPath)==true)
+                        {
+                            File.Delete(destinationPath);
+                        }
                         // MP3ファイルをコピー
                         File.Copy(mp3File, destinationPath);
 

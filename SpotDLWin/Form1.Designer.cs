@@ -31,6 +31,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.groupResult = new System.Windows.Forms.Panel();
             this.groupDownload = new System.Windows.Forms.Panel();
+            this.Download = new System.Windows.Forms.Button();
             this.Result = new System.Windows.Forms.Label();
             this.groupCommand = new System.Windows.Forms.Panel();
             this.ResultText = new System.Windows.Forms.RichTextBox();
@@ -38,10 +39,9 @@
             this.URL = new System.Windows.Forms.Label();
             this.inputTextBox = new System.Windows.Forms.TextBox();
             this.groupOutput = new System.Windows.Forms.Panel();
-            this.label1 = new System.Windows.Forms.Label();
-            this.textOutDir = new System.Windows.Forms.TextBox();
             this.button1 = new System.Windows.Forms.Button();
-            this.Download = new System.Windows.Forms.Button();
+            this.textOutDir = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.groupDownload.SuspendLayout();
             this.groupCommand.SuspendLayout();
             this.groupURL.SuspendLayout();
@@ -65,6 +65,21 @@
             this.groupDownload.Name = "groupDownload";
             this.groupDownload.Size = new System.Drawing.Size(1075, 36);
             this.groupDownload.TabIndex = 8;
+            // 
+            // Download
+            // 
+            this.Download.BackColor = System.Drawing.SystemColors.Control;
+            this.Download.BackgroundImage = global::SpotDLWin.Properties.Resources.download_transparent;
+            this.Download.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.Download.Dock = System.Windows.Forms.DockStyle.Right;
+            this.Download.Font = new System.Drawing.Font("游ゴシック", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Download.ForeColor = System.Drawing.Color.Transparent;
+            this.Download.Location = new System.Drawing.Point(1036, 0);
+            this.Download.Name = "Download";
+            this.Download.Size = new System.Drawing.Size(39, 36);
+            this.Download.TabIndex = 11;
+            this.Download.UseVisualStyleBackColor = false;
+            this.Download.Click += new System.EventHandler(this.Download_Click);
             // 
             // Result
             // 
@@ -139,28 +154,6 @@
             this.groupOutput.Size = new System.Drawing.Size(1075, 66);
             this.groupOutput.TabIndex = 10;
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label1.Font = new System.Drawing.Font("游ゴシック", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.label1.Location = new System.Drawing.Point(0, 0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(103, 20);
-            this.label1.TabIndex = 8;
-            this.label1.Text = "OUTPUT_DIR";
-            // 
-            // textOutDir
-            // 
-            this.textOutDir.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textOutDir.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.textOutDir.Font = new System.Drawing.Font("游ゴシック", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.textOutDir.Location = new System.Drawing.Point(0, 38);
-            this.textOutDir.Name = "textOutDir";
-            this.textOutDir.Size = new System.Drawing.Size(1075, 28);
-            this.textOutDir.TabIndex = 1;
-            this.textOutDir.Text = "c:\\spotdl\\";
-            // 
             // button1
             // 
             this.button1.BackColor = System.Drawing.SystemColors.Control;
@@ -176,20 +169,27 @@
             this.button1.UseVisualStyleBackColor = false;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // Download
+            // textOutDir
             // 
-            this.Download.BackColor = System.Drawing.SystemColors.Control;
-            this.Download.BackgroundImage = global::SpotDLWin.Properties.Resources.download_transparent;
-            this.Download.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.Download.Dock = System.Windows.Forms.DockStyle.Right;
-            this.Download.Font = new System.Drawing.Font("游ゴシック", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Download.ForeColor = System.Drawing.Color.Transparent;
-            this.Download.Location = new System.Drawing.Point(1036, 0);
-            this.Download.Name = "Download";
-            this.Download.Size = new System.Drawing.Size(39, 36);
-            this.Download.TabIndex = 11;
-            this.Download.UseVisualStyleBackColor = false;
-            this.Download.Click += new System.EventHandler(this.Download_Click);
+            this.textOutDir.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textOutDir.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.textOutDir.Font = new System.Drawing.Font("游ゴシック", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.textOutDir.Location = new System.Drawing.Point(0, 38);
+            this.textOutDir.Name = "textOutDir";
+            this.textOutDir.Size = new System.Drawing.Size(1075, 28);
+            this.textOutDir.TabIndex = 1;
+            this.textOutDir.Text = "c:\\spotdl\\";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label1.Font = new System.Drawing.Font("游ゴシック", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label1.Location = new System.Drawing.Point(0, 0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(103, 20);
+            this.label1.TabIndex = 8;
+            this.label1.Text = "OUTPUT_DIR";
             // 
             // Form1
             // 
