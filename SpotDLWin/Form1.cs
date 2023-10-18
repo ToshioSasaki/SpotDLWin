@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
+
 
 namespace SpotDLWin
 {
     public partial class Form1 : Form
     {
+
         public Form1()
         {
             InitializeComponent();
@@ -19,6 +22,11 @@ namespace SpotDLWin
         /// <param name="e"></param>
         private void Form1_Load(object sender, EventArgs e)
         {
+            //設定ファイルからディレクトリを読込み
+            IniData objIni = new IniData();
+            objIni.GetIniData();
+            textOutDir.Text = objIni.OutPath;
+            //ディレクトリが存在するかしないか確認
             if (!Directory.Exists(textOutDir.Text.Trim()))
             {
                 // フォルダが存在しない場合、フォルダを作成
@@ -36,23 +44,13 @@ namespace SpotDLWin
             string Url = "spotdl " + inputTextBox.Text.Trim();
             if (!string.IsNullOrEmpty(Url))
             {
+                //URLを表示
+                UpdateRichTextBox(Url);
 
-                ResultText.AppendText(Url);
-
-         
                 //MP3ダウンロード実行
-                string Result = ExecuteCommand(Url);
-                //結果をリッチテキストボックスに表示
-                ResultText.AppendText(Result);
+                UpdateRichTextBox(ExecuteCommand(Url));
 
-                //ファイルコピー
-                if (CopyMp3File() == false)
-                {
-                    ResultText.AppendText("Error :FileCopy");
-                } else
-                {
-                    ResultText.AppendText("Download Ok , FileCopy Ok");
-                }
+                
 
             }
         }
@@ -70,8 +68,12 @@ namespace SpotDLWin
 
                 if (result == DialogResult.OK)
                 {
+                    //ディレクトリ変更
                     string selectedFolder = folderBrowserDialog.SelectedPath;
                     textOutDir.Text = selectedFolder;
+                    //設定ファイルの変更
+                    IniData objIni = new IniData();
+                    objIni.SetIniData(textOutDir.Text.Trim());
                 }
             }
         }
@@ -80,32 +82,50 @@ namespace SpotDLWin
         /// コマンドの実行
         /// </summary>
         /// <param name="command">spotdl + URL</param>
-        /// <returns>コマンドライン</returns>
         private string ExecuteCommand(string command)
         {
             try
             {
-                // コマンドを実行して結果を取得
-                ProcessStartInfo startInfo = new ProcessStartInfo
+                //プロセスの準備とコマンドの実行
+                ProcessStartInfo startInfo = new ProcessStartInfo("cmd.exe", "/c " + command)
                 {
-                    FileName = "cmd.exe",
                     RedirectStandardInput = true,
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
-                    CreateNoWindow = true
+                    CreateNoWindow = true,
                 };
-
-                using (Process process = new Process { StartInfo = startInfo })
+                Process process = new Process
                 {
-                    process.Start();
-                    process.StandardInput.WriteLine(command);
-                    process.StandardInput.WriteLine("exit");
-                    return process.StandardOutput.ReadToEnd();
-                }
+                    StartInfo = startInfo,
+                    EnableRaisingEvents = true
+                };
+               
+                //コマンドの出力(UIスレッドで行う)
+                process.OutputDataReceived += (s, _e) =>
+                {
+                   if (!String.IsNullOrEmpty(_e.Data))
+                    {
+                        UpdateRichTextBox(_e.Data);
+                    }
+                    //ファイルコピー
+                    if (CopyMp3File() == false)
+                    {
+                        UpdateRichTextBox("Error :FileCopy");
+                    }
+                    else
+                    {
+                        UpdateRichTextBox("Download Ok , FileCopy Ok");
+                    }
+                };
+                process.Start();
+                process.BeginOutputReadLine();
+
+                return "";
+                
             }
             catch (Exception ex)
             {
-                return "error: " + ex.Message;
+                return "Error : Command Error";
             }
         }
 
@@ -126,6 +146,7 @@ namespace SpotDLWin
 
                     foreach (string mp3File in mp3Files)
                     {
+                        Application.DoEvents();
                         string fileName = Path.GetFileName(mp3File);
                         string destinationPath = Path.Combine(destinationFolder, fileName);
 
@@ -145,6 +166,23 @@ namespace SpotDLWin
             catch (Exception ex)
             {
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// リッチテキストに表示します。
+        /// </summary>
+        /// <param name="text">表示する文字</param>
+        private void UpdateRichTextBox(string text)
+        {
+            if (ResultText.InvokeRequired)
+            {
+                ResultText.Invoke(new Action<string>(UpdateRichTextBox), new object[] { text });
+            }
+            else
+            {
+                ResultText.AppendText(text + Environment.NewLine);
+                ResultText.ScrollToCaret();
             }
         }
 
