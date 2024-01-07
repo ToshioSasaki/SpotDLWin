@@ -1,6 +1,8 @@
-﻿namespace SpotDLWin
+﻿using System;
+
+namespace SpotDLWin
 {
-    partial class Form1
+    partial class SpotDL
     {
         /// <summary>
         /// 必要なデザイナー変数です。
@@ -28,13 +30,11 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SpotDL));
             this.groupResult = new System.Windows.Forms.Panel();
             this.groupDownload = new System.Windows.Forms.Panel();
             this.Download = new System.Windows.Forms.Button();
-            this.Result = new System.Windows.Forms.Label();
             this.groupCommand = new System.Windows.Forms.Panel();
-            this.ResultText = new System.Windows.Forms.RichTextBox();
             this.groupURL = new System.Windows.Forms.Panel();
             this.URL = new System.Windows.Forms.Label();
             this.inputTextBox = new System.Windows.Forms.TextBox();
@@ -42,6 +42,8 @@
             this.button1 = new System.Windows.Forms.Button();
             this.textOutDir = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.ResultText = new System.Windows.Forms.RichTextBox();
+            this.Result = new System.Windows.Forms.Label();
             this.groupDownload.SuspendLayout();
             this.groupCommand.SuspendLayout();
             this.groupURL.SuspendLayout();
@@ -51,7 +53,7 @@
             // groupResult
             // 
             this.groupResult.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.groupResult.Location = new System.Drawing.Point(0, 118);
+            this.groupResult.Location = new System.Drawing.Point(0, 154);
             this.groupResult.Name = "groupResult";
             this.groupResult.Size = new System.Drawing.Size(1075, 10);
             this.groupResult.TabIndex = 9;
@@ -59,9 +61,8 @@
             // groupDownload
             // 
             this.groupDownload.Controls.Add(this.Download);
-            this.groupDownload.Controls.Add(this.Result);
-            this.groupDownload.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.groupDownload.Location = new System.Drawing.Point(0, 128);
+            this.groupDownload.Dock = System.Windows.Forms.DockStyle.Top;
+            this.groupDownload.Location = new System.Drawing.Point(0, 52);
             this.groupDownload.Name = "groupDownload";
             this.groupDownload.Size = new System.Drawing.Size(1075, 36);
             this.groupDownload.TabIndex = 8;
@@ -81,36 +82,16 @@
             this.Download.UseVisualStyleBackColor = false;
             this.Download.Click += new System.EventHandler(this.Download_Click);
             // 
-            // Result
-            // 
-            this.Result.AutoSize = true;
-            this.Result.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.Result.Font = new System.Drawing.Font("游ゴシック", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.Result.Location = new System.Drawing.Point(0, 0);
-            this.Result.Name = "Result";
-            this.Result.Size = new System.Drawing.Size(53, 20);
-            this.Result.TabIndex = 8;
-            this.Result.Text = "Result";
-            // 
             // groupCommand
             // 
+            this.groupCommand.Controls.Add(this.Result);
             this.groupCommand.Controls.Add(this.ResultText);
             this.groupCommand.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.groupCommand.Location = new System.Drawing.Point(0, 164);
             this.groupCommand.Name = "groupCommand";
             this.groupCommand.Size = new System.Drawing.Size(1075, 452);
             this.groupCommand.TabIndex = 7;
-            // 
-            // ResultText
-            // 
-            this.ResultText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.ResultText.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.ResultText.Font = new System.Drawing.Font("游ゴシック", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.ResultText.Location = new System.Drawing.Point(0, 18);
-            this.ResultText.Name = "ResultText";
-            this.ResultText.Size = new System.Drawing.Size(1075, 434);
-            this.ResultText.TabIndex = 6;
-            this.ResultText.Text = "";
+            this.groupCommand.Paint += new System.Windows.Forms.PaintEventHandler(this.groupCommand_Paint);
             // 
             // groupURL
             // 
@@ -149,7 +130,7 @@
             this.groupOutput.Controls.Add(this.textOutDir);
             this.groupOutput.Controls.Add(this.label1);
             this.groupOutput.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupOutput.Location = new System.Drawing.Point(0, 52);
+            this.groupOutput.Location = new System.Drawing.Point(0, 88);
             this.groupOutput.Name = "groupOutput";
             this.groupOutput.Size = new System.Drawing.Size(1075, 66);
             this.groupOutput.TabIndex = 10;
@@ -191,7 +172,30 @@
             this.label1.TabIndex = 8;
             this.label1.Text = "OUTPUT_DIR";
             // 
-            // Form1
+            // ResultText
+            // 
+            this.ResultText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.ResultText.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.ResultText.Font = new System.Drawing.Font("游ゴシック", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.ResultText.Location = new System.Drawing.Point(0, 23);
+            this.ResultText.Name = "ResultText";
+            this.ResultText.Size = new System.Drawing.Size(1075, 429);
+            this.ResultText.TabIndex = 6;
+            this.ResultText.Text = "";
+            this.ResultText.TextChanged += new System.EventHandler(this.ResultText_TextChanged_1);
+            // 
+            // Result
+            // 
+            this.Result.AutoSize = true;
+            this.Result.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Result.Font = new System.Drawing.Font("游ゴシック", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.Result.Location = new System.Drawing.Point(0, 0);
+            this.Result.Name = "Result";
+            this.Result.Size = new System.Drawing.Size(53, 20);
+            this.Result.TabIndex = 9;
+            this.Result.Text = "Result";
+            // 
+            // SpotDL
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -205,13 +209,13 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "Form1";
+            this.Name = "SpotDL";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "spotDL:GUI";
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Load += new System.EventHandler(this.SpotDL_Load);
             this.groupDownload.ResumeLayout(false);
-            this.groupDownload.PerformLayout();
             this.groupCommand.ResumeLayout(false);
+            this.groupCommand.PerformLayout();
             this.groupURL.ResumeLayout(false);
             this.groupURL.PerformLayout();
             this.groupOutput.ResumeLayout(false);
@@ -223,8 +227,6 @@
         #endregion
         private System.Windows.Forms.Label URL;
         private System.Windows.Forms.TextBox inputTextBox;
-        private System.Windows.Forms.RichTextBox ResultText;
-        private System.Windows.Forms.Label Result;
         private System.Windows.Forms.Panel groupURL;
         private System.Windows.Forms.Panel groupCommand;
         private System.Windows.Forms.Panel groupDownload;
@@ -234,6 +236,8 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button Download;
+        private System.Windows.Forms.Label Result;
+        private System.Windows.Forms.RichTextBox ResultText;
     }
 }
 
