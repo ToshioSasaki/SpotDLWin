@@ -11,8 +11,6 @@ namespace MusicDLWin
 {
     public partial class MusicDL : Form
     {
-        private ManualResetEvent mre1 = new ManualResetEvent(false);
-        private ManualResetEvent mre2 = new ManualResetEvent(false);
 
         public MusicDL()
         {
@@ -40,17 +38,17 @@ namespace MusicDLWin
 
                 //最新バージョンの更新
                 string command1 = "pip install --upgrade spotdl";
-                await ExecuteCommand(command1,Jobdata.NONE);
+                await ExecuteCommand(command1);
 
                 //URLダウンロード
                 string command2 = "spotdl " + inputTextBox.Text.Trim();
-                await ExecuteCommand(command2,Jobdata.NONE);
+                await ExecuteCommand(command2);
 
                 //ローカルファイルをコピー
                 int iDirctory = textOutDir.Text.Trim().LastIndexOf("\\");
                 string Directory = textOutDir.Text.Trim().Substring(0, iDirctory);
-                string command3 = "cd " + Directory + " && " + "cd " + textOutDir.Text.Trim() + " && dir *.mp3";
-                await ExecuteCommand(command3,Jobdata.NONE);
+                string command3 = "cd " + Directory + " && " + "cd " + textOutDir.Text.Trim() + " && dir *.mp3 /O-D";
+                await ExecuteCommand(command3);
 
 
                 //終了ステートメント
@@ -60,7 +58,7 @@ namespace MusicDLWin
                 sHms = now.Hour + ":" + now.Minute + ":" + now.Second;
                 string message = (success) ? "ファイルコピー成功" : "ファイルコピー失敗";
                 string command4 = "echo ■ダウンロード終了 " + message  + " "　+ sYmd + sHms;
-                await ExecuteCommand(command4, Jobdata.NONE);
+                await ExecuteCommand(command4);
 
 
                 
@@ -80,7 +78,7 @@ namespace MusicDLWin
             }
             if (string.IsNullOrEmpty(inputTextBox.Text.Trim()))
             {
-                MessageBox.Show("URLエラーです");
+                MessageBox.Show("URLエラーです", "URLエラー",MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return false;
             }
             return true;
@@ -137,7 +135,7 @@ namespace MusicDLWin
         /// <param name="sHms">開始時間</param>
         /// <param name="boolFiles">ファイルコピー：true=ファイルコピーする、false:何もしない</param>
         /// <return>コマンド実行メッセージ</return>>
-        private async Task ExecuteCommand(string command,Jobdata job)
+        private async Task ExecuteCommand(string command)
         {
             
              ProcessStartInfo processStartInfo = new ProcessStartInfo("cmd.exe", "/c " + command)
@@ -342,12 +340,4 @@ namespace MusicDLWin
         }
     }
 
-    /// <summary>
-    /// 列挙型のEnumデータ
-    /// </summary>
-    public enum Jobdata
-    {
-        NONE,
-        COPY,
-    }
 }
