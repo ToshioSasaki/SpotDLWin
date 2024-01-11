@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{14B3C95F-9016-45B2-9653-138278299C0A}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>SpotDLWin</RootNamespace>
-    <AssemblyName>SpotDLWin</AssemblyName>
+    <RootNamespace>MusicDLWin</RootNamespace>
+    <AssemblyName>MusicDLWin</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -33,7 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>download.ico</ApplicationIcon>
+    <ApplicationIcon>download-arrow.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -49,32 +49,42 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SpotDL.cs">
+    <Compile Include="Help.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="SpotDL.Designer.cs">
-      <DependentUpon>SpotDL.cs</DependentUpon>
+    <Compile Include="Help.Designer.cs">
+      <DependentUpon>Help.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MusicDL.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MusicDL.Designer.cs">
+      <DependentUpon>MusicDL.cs</DependentUpon>
     </Compile>
     <Compile Include="IniData.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="SpotDL.resx">
-      <DependentUpon>SpotDL.cs</DependentUpon>
+    <EmbeddedResource Include="Help.resx">
+      <DependentUpon>Help.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MusicDL.resx">
+      <DependentUpon>MusicDL.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
@@ -85,37 +95,11 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Dev.ico" />
+    <None Include="Resources\downloadfolder1.png" />
+    <None Include="Resources\downloadfolder.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\download.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\inode-directory.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\7.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\folder.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\download.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\download %281%29.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\folder.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\folder_transparent.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\download_transparent.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="download.ico" />
+    <Content Include="download-arrow.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

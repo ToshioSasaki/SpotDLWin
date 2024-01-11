@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SpotDLWin
+namespace MusicDLWin
 {
     public class IniData
     {
@@ -21,7 +21,7 @@ namespace SpotDLWin
         /// INIファイルの取得
         /// </summary>
         public void GetIniData() {
-            this.OutPath = Properties.Settings.Default.OutPath;
+            this.OutPath = MusicDLWin.Properties.Settings.Default.OutPath;
 
         }
 
@@ -31,8 +31,8 @@ namespace SpotDLWin
         /// <param name="path">パス</param>
         public void SetIniData(string path)
         {
-            Properties.Settings.Default.OutPath = path;
-            Properties.Settings.Default.Save();
+            MusicDLWin.Properties.Settings.Default.OutPath = path;
+            MusicDLWin.Properties.Settings.Default.Save();
         }
 
         

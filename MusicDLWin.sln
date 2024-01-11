@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33723.286
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpotDLWin", "SpotDLWin\SpotDLWin.csproj", "{14B3C95F-9016-45B2-9653-138278299C0A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicDLWin", "SpotDLWin\MusicDLWin.csproj", "{14B3C95F-9016-45B2-9653-138278299C0A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

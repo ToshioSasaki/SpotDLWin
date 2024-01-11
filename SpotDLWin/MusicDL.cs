@@ -7,38 +7,19 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 
-namespace SpotDLWin
+namespace MusicDLWin
 {
-    public partial class SpotDL : Form
+    public partial class MusicDL : Form
     {
         private ManualResetEvent mre1 = new ManualResetEvent(false);
         private ManualResetEvent mre2 = new ManualResetEvent(false);
 
-        public SpotDL()
+        public MusicDL()
         {
             InitializeComponent();
         }
 
-        /// <summary>
-        /// フォームロード
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void SpotDL_Load(object sender, EventArgs e)
-        {
-            //設定ファイルからディレクトリを読込み
-            IniData objIni = new IniData();
-            objIni.GetIniData();
-            textOutDir.Text = objIni.OutPath;
-            //ディレクトリが存在するかしないか確認
-            if (!Directory.Exists(textOutDir.Text.Trim()))
-            {
-                // フォルダが存在しない場合、フォルダを作成
-                Directory.CreateDirectory(textOutDir.Text.Trim());
-            }
-            ResultText.Anchor = AnchorStyles.Top | AnchorStyles.Left;
-            groupCommand.Anchor = AnchorStyles.Top | AnchorStyles.Left;
-        }
+
         
         /// <summary>
         /// 作業開始
@@ -49,13 +30,13 @@ namespace SpotDLWin
             if (CheckDIr())
             {
                 //ローカルファイルのMP3ファイルをすべて消去する
-                DeleteMP3File();
+                DeleteMP3FileAsync();
 
                 //作業開始
                 DateTime now = DateTime.Now;
                 string sYmd = now.Year + "/" + now.Month + "/" + now.Day + " ";
                 string sHms = now.Hour + ":" + now.Minute + ":" + now.Second;
-                UpdateRichTextBox("--All Downloads Work Start --: StartTime(" + sYmd + sHms + ")");
+                UpdateRichTextBox("■ダウンロード作業を開始します。(" + sYmd + sHms + ")■");
 
                 //最新バージョンの更新
                 string command1 = "pip install --upgrade spotdl";
@@ -66,10 +47,23 @@ namespace SpotDLWin
                 await ExecuteCommand(command2,Jobdata.NONE);
 
                 //ローカルファイルをコピー
-                //string command3 = "cd " + textOutDir.Text.Trim() + " & dir";
-                //await ExecuteCommand(command3,Jobdata.COPY);
-                CopyMp3File();
-                UpdateRichTextBox("Copy OutPut AllFiles Complete");
+                int iDirctory = textOutDir.Text.Trim().LastIndexOf("\\");
+                string Directory = textOutDir.Text.Trim().Substring(0, iDirctory);
+                string command3 = "cd " + Directory + " && " + "cd " + textOutDir.Text.Trim() + " && dir ";
+                await ExecuteCommand(command3,Jobdata.NONE);
+
+
+                //終了ステートメント
+                bool success = CopyMp3File();
+                now = DateTime.Now;
+                sYmd = now.Year + "/" + now.Month + "/" + now.Day + " ";
+                sHms = now.Hour + ":" + now.Minute + ":" + now.Second;
+                string message = (success) ? "ファイルコピー成功" : "ファイルコピー失敗";
+                string command4 = "echo ■ダウンロード終了 " + message  + " "　+ sYmd + sHms;
+                await ExecuteCommand(command4, Jobdata.NONE);
+
+
+                
             }
         }
 
@@ -81,12 +75,12 @@ namespace SpotDLWin
         {
             if (Directory.Exists(textOutDir.Text.Trim())==false)
             {
-                MessageBox.Show("OutPut Path Error !!");
+                MessageBox.Show("出力先パスが存在しません。");
                 return false;
             }
             if (string.IsNullOrEmpty(inputTextBox.Text.Trim()))
             {
-                MessageBox.Show("Input URL Empty !!");
+                MessageBox.Show("URLエラーです");
                 return false;
             }
             return true;
@@ -95,7 +89,7 @@ namespace SpotDLWin
         /// <summary>
         /// ローカルフォルダにあるMP3ファイルを全て削除します。
         /// </summary>
-        private void DeleteMP3File()
+        private void DeleteMP3FileAsync()
         {
             string AppPath = Application.StartupPath + "\\";
             string[] mp3Files = Directory.GetFiles(AppPath, "*.mp3");
@@ -108,17 +102,15 @@ namespace SpotDLWin
                 }
                 catch (IOException e)
                 {
-                    UpdateRichTextBox($"Could not delete file: {file}. Error: {e.Message}");
+                    UpdateRichTextBox($"ファイルを削除できませんでした。削除できなかったファイル: {file}. Error: {e.Message}");
                 }
             }
         }
 
         /// <summary>
-        /// フォルダボタンクリック
+        /// フォルダダイアログを開きパスを指定します。
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void button1_Click(object sender, EventArgs e)
+        private void MoveMakeFolder()
         {
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
             {
@@ -158,25 +150,23 @@ namespace SpotDLWin
 
             using (Process process = new Process())
             {
-
-                process.StartInfo = processStartInfo;
-                process.OutputDataReceived += (sender, e) =>
-                {
-                    UpdateRichTextBox(e.Data);
-                };
-                process.ErrorDataReceived += (sender, e) =>
-                {
-                    UpdateRichTextBox(e.Data);
-                };
                
+                    process.StartInfo = processStartInfo;
+                    process.OutputDataReceived += (sender, e) => 
+                    { 
+                        UpdateRichTextBox(e.Data);
+                    };
+                    process.ErrorDataReceived +=(sender, e) =>
+                    {
+                        UpdateRichTextBox(e.Data);
+                    };
 
-                process.Start();
+                    process.Start();
 
-                
                     process.BeginOutputReadLine();
                     process.BeginErrorReadLine();
-               
-                await Task.Run(() => process.WaitForExit());
+
+                    await Task.Run(() => process.WaitForExit());
             }        
         }
 
@@ -211,6 +201,7 @@ namespace SpotDLWin
                         // コピー元のMP3ファイルを削除
                         File.Delete(mp3File);
                     }
+
                 }
                 return true;
             }
@@ -237,24 +228,117 @@ namespace SpotDLWin
             }
         }
 
-        private void Download_Click(object sender, EventArgs e)
+        /// <summary>
+        /// OutPutフォルダの中身の削除
+        /// </summary>
+        private void CheckOutPutDeleteFiles()
+        {
+            //ディレクトリが存在するかしないか確認
+            if (!Directory.Exists(textOutDir.Text.Trim()))
+            {
+                // フォルダが存在しない場合、フォルダを作成
+                Directory.CreateDirectory(textOutDir.Text.Trim());
+            }
+            else
+            {
+                //　フォルダが存在している場合、フォルダの中を削除
+                string destinationFolder = textOutDir.Text.Trim();
+                string[] mp3Files = Directory.GetFiles(destinationFolder, "*.mp3");
+
+                foreach (string mp3File in mp3Files)
+                {
+                    string fileName = Path.GetFileName(mp3File);
+                    string destinationPath = Path.Combine(destinationFolder, fileName);
+
+                    if (File.Exists(destinationPath) == true)
+                    {
+                        File.Delete(destinationPath);
+                    }
+                }
+
+            }
+        }
+
+        /// <summary>
+        /// フォームロード
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SpotDL_Load(object sender, EventArgs e)
+        {
+            //設定ファイルからディレクトリを読込み
+            IniData objIni = new IniData();
+            objIni.GetIniData();
+            textOutDir.Text = objIni.OutPath;
+
+            //OutPutフォルダの削除
+            this.CheckOutPutDeleteFiles();
+
+        }
+
+        /// <summary>
+        /// メニューダウンロードボタン押下
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ダウンロードToolStripMenuItem_Click(object sender, EventArgs e)
         {
             WorksFiles();
         }
 
-        private void ResultText_TextChanged(object sender, EventArgs e)
+        /// <summary>
+        /// メニュー出力先ボタン押下
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void 出力先ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            MoveMakeFolder();
         }
 
-        private void ResultText_TextChanged_1(object sender, EventArgs e)
+        /// <summary>
+        /// メニュー終了ボタン押下
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void アプリを終了しますToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            if (MessageBox.Show("MusicDLWindowsを終了しますか？", "MusicDLWindows", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
+            {
+                this.Close();
+                this.Dispose();
+            }
         }
 
-        private void groupCommand_Paint(object sender, PaintEventArgs e)
+        /// <summary>
+        /// ヘルプボタン押下
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ヘルプToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Help help = new Help();
+            help.ShowDialog();
+        }
 
+        /// <summary>
+        /// ダウンロードボタン押下
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Download_Click_1(object sender, EventArgs e)
+        {
+            WorksFiles();
+        }
+
+        /// <summary>
+        /// 出力先ボタン押下
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            MoveMakeFolder();
         }
     }
 
