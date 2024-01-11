@@ -49,7 +49,7 @@ namespace MusicDLWin
                 //ローカルファイルをコピー
                 int iDirctory = textOutDir.Text.Trim().LastIndexOf("\\");
                 string Directory = textOutDir.Text.Trim().Substring(0, iDirctory);
-                string command3 = "cd " + Directory + " && " + "cd " + textOutDir.Text.Trim() + " && dir ";
+                string command3 = "cd " + Directory + " && " + "cd " + textOutDir.Text.Trim() + " && dir *.mp3";
                 await ExecuteCommand(command3,Jobdata.NONE);
 
 
@@ -75,7 +75,7 @@ namespace MusicDLWin
         {
             if (Directory.Exists(textOutDir.Text.Trim())==false)
             {
-                MessageBox.Show("出力先パスが存在しません。");
+                MessageBox.Show("出力先パスが存在しません。","出力先エラー",MessageBoxButtons.OK,MessageBoxIcon.Exclamation);
                 return false;
             }
             if (string.IsNullOrEmpty(inputTextBox.Text.Trim()))
