@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TagLib;
 
 
 namespace MusicDLWin
@@ -28,7 +27,7 @@ namespace MusicDLWin
             if (CheckDIr())
             {
                 //ローカルファイルのMP3ファイルをすべて消去する
-                DeleteMP3FileAsync();
+                DeleteMP3LocalFile();
 
                 //作業開始
                 DateTime now = DateTime.Now;
@@ -52,17 +51,52 @@ namespace MusicDLWin
 
 
                 //終了ステートメント
+                DeleteMP3OutPutFile();
                 bool success = CopyMp3File();
+                string updateMessage = UpdateMp3Properties(textOutDir.Text.Trim(), textAlbumName.Text.Trim()) == "" ? "成功" : "失敗";
                 now = DateTime.Now;
                 sYmd = now.Year + "/" + now.Month + "/" + now.Day + " ";
                 sHms = now.Hour + ":" + now.Minute + ":" + now.Second;
                 string message = (success) ? "ファイルコピー成功" : "ファイルコピー失敗";
-                string command4 = "echo ■ダウンロード終了 " + message  + " "　+ sYmd + sHms;
+                string command4 = "echo ■ダウンロード終了 " + message  + " ファイルアップデート(" + updateMessage + ")"　+ sYmd + sHms;
                 await ExecuteCommand(command4);
-
-
-                
             }
+        }
+
+        /// <summary>
+        /// MP3のプロパティにアルバム名とトラック番号を付け加える
+        /// </summary>
+        /// <param name="filePath">MP3ファイルの読込先</param>
+        /// <param name="newAlbum">アルバム名</param>
+        /// <param name="newTrackNumber">トラック番号</param>
+        private string  UpdateMp3Properties(string filePaths, string newAlbum)
+        {
+            // MP3ファイルを読み込む
+            string directoryPath = filePaths.Trim();
+            string ErrorMsg = "";
+            uint newTrackNumber=0;
+            foreach (string filePath in Directory.EnumerateFiles(directoryPath, "*.mp3"))
+            {
+                try
+                {
+                    TagLib.File mp3File = TagLib.File.Create(filePath);
+                    mp3File.Tag.Album = textAlbumName.Text.Trim();
+                    mp3File.Tag.Track = newTrackNumber;
+                    mp3File.Save();
+                    newTrackNumber++;
+                }
+                catch (TagLib.UnsupportedFormatException)
+                {
+                    ErrorMsg = $"サポートされていない形式: {filePath}";
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    ErrorMsg = ex.Message.ToString();
+                    break;
+                }
+            }
+            return ErrorMsg;
         }
 
         /// <summary>
@@ -87,7 +121,7 @@ namespace MusicDLWin
         /// <summary>
         /// ローカルフォルダにあるMP3ファイルを全て削除します。
         /// </summary>
-        private void DeleteMP3FileAsync()
+        private void DeleteMP3LocalFile()
         {
             string AppPath = Application.StartupPath + "\\";
             string[] mp3Files = Directory.GetFiles(AppPath, "*.mp3");
@@ -96,11 +130,31 @@ namespace MusicDLWin
             {
                 try
                 {
-                    File.Delete(file);
+                    System.IO.File.Delete(file);
                 }
                 catch (IOException e)
                 {
-                    UpdateRichTextBox($"ファイルを削除できませんでした。削除できなかったファイル: {file}. Error: {e.Message}");
+                    UpdateRichTextBox($"ローカルファイルを削除できませんでした。削除できなかったファイル: {file}. Error: {e.Message}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 外部出力先にあるMP3ファイルを全て削除します。
+        /// </summary>
+        private void DeleteMP3OutPutFile()
+        {
+            string[] mp3Files = Directory.GetFiles(textOutDir.Text.Trim(),"*mp3");
+            // 各MP3ファイルを削除
+            foreach (string file in mp3Files)
+            {
+                try
+                {
+                    System.IO.File.Delete(file);
+                }
+                catch (IOException e)
+                {
+                    UpdateRichTextBox($"出力先のファイルを削除できませんでした。削除できなかったファイル: {file}. Error: {e.Message}");
                 }
             }
         }
@@ -176,12 +230,15 @@ namespace MusicDLWin
         private bool CopyMp3File()
         {
             string AppPath = Application.StartupPath + "\\";
-            string destinationFolder = textOutDir.Text.Trim(); // コピー先フォルダ
+            //コピー先フォルダ
+            string destinationFolder = textOutDir.Text.Trim();
+            //コピー先フォルダの削除
 
             try
             {
                 if (Directory.Exists(AppPath) && Directory.Exists(destinationFolder))
                 {
+                    //カレントディレクトリのフォルダのMP3を取得
                     string[] mp3Files = Directory.GetFiles(AppPath, "*.mp3");
 
                     foreach (string mp3File in mp3Files)
@@ -189,15 +246,11 @@ namespace MusicDLWin
                         string fileName = Path.GetFileName(mp3File);
                         string destinationPath = Path.Combine(destinationFolder, fileName);
 
-                        if (File.Exists(destinationPath)==true)
-                        {
-                            File.Delete(destinationPath);
-                        }
                         // MP3ファイルをコピー
-                        File.Copy(mp3File, destinationPath);
+                        System.IO.File.Copy(mp3File, destinationPath);
 
                         // コピー元のMP3ファイルを削除
-                        File.Delete(mp3File);
+                        System.IO.File.Delete(mp3File);
                     }
 
                 }
@@ -248,9 +301,9 @@ namespace MusicDLWin
                     string fileName = Path.GetFileName(mp3File);
                     string destinationPath = Path.Combine(destinationFolder, fileName);
 
-                    if (File.Exists(destinationPath) == true)
+                    if (System.IO.File.Exists(destinationPath) == true)
                     {
-                        File.Delete(destinationPath);
+                        System.IO.File.Delete(destinationPath);
                     }
                 }
 

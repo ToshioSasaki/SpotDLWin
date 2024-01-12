@@ -42,6 +42,8 @@ namespace MusicDLWin
             this.ヘルプToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
             this.groupURL = new System.Windows.Forms.Panel();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
             this.URL = new System.Windows.Forms.Label();
             this.inputTextBox = new System.Windows.Forms.TextBox();
             this.groupOutput = new System.Windows.Forms.Panel();
@@ -57,12 +59,16 @@ namespace MusicDLWin
             this.groupCommand = new System.Windows.Forms.Panel();
             this.Result = new System.Windows.Forms.Label();
             this.ResultText = new System.Windows.Forms.RichTextBox();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.textAlbumName = new System.Windows.Forms.TextBox();
+            this.label7 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.groupURL.SuspendLayout();
             this.groupOutput.SuspendLayout();
             this.groupDownload.SuspendLayout();
             this.groupCommand.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // contextMenuStrip1
@@ -79,7 +85,7 @@ namespace MusicDLWin
             this.ヘルプToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1703, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(1687, 24);
             this.menuStrip1.TabIndex = 12;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -136,21 +142,45 @@ namespace MusicDLWin
             this.panel1.Controls.Add(this.groupDownload);
             this.panel1.Controls.Add(this.groupCommand);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(0, 37);
+            this.panel1.Location = new System.Drawing.Point(0, 81);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1703, 634);
+            this.panel1.Size = new System.Drawing.Size(1687, 634);
             this.panel1.TabIndex = 13;
             // 
             // groupURL
             // 
             this.groupURL.AllowDrop = true;
+            this.groupURL.Controls.Add(this.label6);
+            this.groupURL.Controls.Add(this.label5);
             this.groupURL.Controls.Add(this.URL);
             this.groupURL.Controls.Add(this.inputTextBox);
             this.groupURL.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupURL.Location = new System.Drawing.Point(0, 0);
             this.groupURL.Name = "groupURL";
-            this.groupURL.Size = new System.Drawing.Size(1703, 48);
+            this.groupURL.Size = new System.Drawing.Size(1687, 48);
             this.groupURL.TabIndex = 11;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.label6.Font = new System.Drawing.Font("游ゴシック", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label6.Location = new System.Drawing.Point(0, -37);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(144, 19);
+            this.label6.TabIndex = 9;
+            this.label6.Text = "リンク又はアドレス";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.label5.Font = new System.Drawing.Font("游ゴシック", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label5.Location = new System.Drawing.Point(0, -18);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(144, 19);
+            this.label5.TabIndex = 8;
+            this.label5.Text = "リンク又はアドレス";
             // 
             // URL
             // 
@@ -170,8 +200,8 @@ namespace MusicDLWin
             this.inputTextBox.Font = new System.Drawing.Font("游ゴシック", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.inputTextBox.Location = new System.Drawing.Point(0, 20);
             this.inputTextBox.Name = "inputTextBox";
-            this.inputTextBox.Size = new System.Drawing.Size(1703, 28);
-            this.inputTextBox.TabIndex = 0;
+            this.inputTextBox.Size = new System.Drawing.Size(1687, 28);
+            this.inputTextBox.TabIndex = 1;
             // 
             // groupOutput
             // 
@@ -182,7 +212,7 @@ namespace MusicDLWin
             this.groupOutput.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.groupOutput.Location = new System.Drawing.Point(0, 54);
             this.groupOutput.Name = "groupOutput";
-            this.groupOutput.Size = new System.Drawing.Size(1703, 65);
+            this.groupOutput.Size = new System.Drawing.Size(1687, 65);
             this.groupOutput.TabIndex = 15;
             // 
             // label2
@@ -190,7 +220,7 @@ namespace MusicDLWin
             this.label2.AutoSize = true;
             this.label2.Dock = System.Windows.Forms.DockStyle.Right;
             this.label2.Font = new System.Drawing.Font("游ゴシック", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.label2.Location = new System.Drawing.Point(1520, 0);
+            this.label2.Location = new System.Drawing.Point(1504, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(144, 19);
             this.label2.TabIndex = 17;
@@ -215,10 +245,10 @@ namespace MusicDLWin
             this.button1.Dock = System.Windows.Forms.DockStyle.Right;
             this.button1.Font = new System.Drawing.Font("游ゴシック", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.button1.ForeColor = System.Drawing.Color.White;
-            this.button1.Location = new System.Drawing.Point(1664, 0);
+            this.button1.Location = new System.Drawing.Point(1648, 0);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(39, 37);
-            this.button1.TabIndex = 15;
+            this.button1.TabIndex = 2;
             this.button1.UseVisualStyleBackColor = false;
             this.button1.Click += new System.EventHandler(this.button1_Click_1);
             // 
@@ -229,8 +259,8 @@ namespace MusicDLWin
             this.textOutDir.Font = new System.Drawing.Font("游ゴシック", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.textOutDir.Location = new System.Drawing.Point(0, 37);
             this.textOutDir.Name = "textOutDir";
-            this.textOutDir.Size = new System.Drawing.Size(1703, 28);
-            this.textOutDir.TabIndex = 1;
+            this.textOutDir.Size = new System.Drawing.Size(1687, 28);
+            this.textOutDir.TabIndex = 3;
             this.textOutDir.Text = "c:\\spotdl\\";
             // 
             // groupResult
@@ -238,7 +268,7 @@ namespace MusicDLWin
             this.groupResult.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.groupResult.Location = new System.Drawing.Point(0, 119);
             this.groupResult.Name = "groupResult";
-            this.groupResult.Size = new System.Drawing.Size(1703, 10);
+            this.groupResult.Size = new System.Drawing.Size(1687, 10);
             this.groupResult.TabIndex = 14;
             // 
             // groupDownload
@@ -249,7 +279,7 @@ namespace MusicDLWin
             this.groupDownload.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.groupDownload.Location = new System.Drawing.Point(0, 129);
             this.groupDownload.Name = "groupDownload";
-            this.groupDownload.Size = new System.Drawing.Size(1703, 53);
+            this.groupDownload.Size = new System.Drawing.Size(1687, 53);
             this.groupDownload.TabIndex = 13;
             // 
             // label4
@@ -257,7 +287,7 @@ namespace MusicDLWin
             this.label4.AutoSize = true;
             this.label4.Dock = System.Windows.Forms.DockStyle.Right;
             this.label4.Font = new System.Drawing.Font("游ゴシック", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.label4.Location = new System.Drawing.Point(1521, 0);
+            this.label4.Location = new System.Drawing.Point(1505, 0);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(143, 19);
             this.label4.TabIndex = 16;
@@ -271,10 +301,10 @@ namespace MusicDLWin
             this.Download.Dock = System.Windows.Forms.DockStyle.Right;
             this.Download.Font = new System.Drawing.Font("游ゴシック", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.Download.ForeColor = System.Drawing.Color.Transparent;
-            this.Download.Location = new System.Drawing.Point(1664, 0);
+            this.Download.Location = new System.Drawing.Point(1648, 0);
             this.Download.Name = "Download";
             this.Download.Size = new System.Drawing.Size(39, 34);
-            this.Download.TabIndex = 15;
+            this.Download.TabIndex = 4;
             this.Download.UseVisualStyleBackColor = false;
             this.Download.Click += new System.EventHandler(this.Download_Click_1);
             // 
@@ -296,7 +326,7 @@ namespace MusicDLWin
             this.groupCommand.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.groupCommand.Location = new System.Drawing.Point(0, 182);
             this.groupCommand.Name = "groupCommand";
-            this.groupCommand.Size = new System.Drawing.Size(1703, 452);
+            this.groupCommand.Size = new System.Drawing.Size(1687, 452);
             this.groupCommand.TabIndex = 12;
             // 
             // Result
@@ -317,16 +347,48 @@ namespace MusicDLWin
             this.ResultText.Font = new System.Drawing.Font("游ゴシック", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.ResultText.Location = new System.Drawing.Point(0, 0);
             this.ResultText.Name = "ResultText";
-            this.ResultText.Size = new System.Drawing.Size(1703, 452);
-            this.ResultText.TabIndex = 6;
+            this.ResultText.Size = new System.Drawing.Size(1687, 452);
+            this.ResultText.TabIndex = 5;
             this.ResultText.Text = "";
+            // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.textAlbumName);
+            this.panel2.Controls.Add(this.label7);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel2.Location = new System.Drawing.Point(0, 24);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(1687, 57);
+            this.panel2.TabIndex = 14;
+            // 
+            // textAlbumName
+            // 
+            this.textAlbumName.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textAlbumName.Dock = System.Windows.Forms.DockStyle.Top;
+            this.textAlbumName.Font = new System.Drawing.Font("游ゴシック", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.textAlbumName.Location = new System.Drawing.Point(0, 19);
+            this.textAlbumName.Name = "textAlbumName";
+            this.textAlbumName.Size = new System.Drawing.Size(1687, 28);
+            this.textAlbumName.TabIndex = 0;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Dock = System.Windows.Forms.DockStyle.Top;
+            this.label7.Font = new System.Drawing.Font("游ゴシック", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label7.Location = new System.Drawing.Point(0, 0);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(157, 19);
+            this.label7.TabIndex = 8;
+            this.label7.Text = "プレイリストタイトル";
             // 
             // MusicDL
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(1703, 671);
+            this.ClientSize = new System.Drawing.Size(1687, 715);
+            this.Controls.Add(this.panel2);
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.panel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -349,6 +411,8 @@ namespace MusicDLWin
             this.groupDownload.PerformLayout();
             this.groupCommand.ResumeLayout(false);
             this.groupCommand.PerformLayout();
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -380,6 +444,11 @@ namespace MusicDLWin
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Button Download;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.TextBox textAlbumName;
+        private System.Windows.Forms.Label label7;
     }
 }
 
