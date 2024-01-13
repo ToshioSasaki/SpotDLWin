@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TagLib;
@@ -191,37 +193,64 @@ namespace MusicDLWin
         /// <return>コマンド実行メッセージ</return>>
         private async Task ExecuteCommand(string command)
         {
-            
-             ProcessStartInfo processStartInfo = new ProcessStartInfo("cmd.exe", "/c " + command)
-            {
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
 
+            //プロセススタートInfoのインスタンスを作成＆各プロパティを設定
+            ProcessStartInfo processStartInfo = new ProcessStartInfo("cmd.exe", "/c " + command);
+            processStartInfo.RedirectStandardOutput = true;
+            processStartInfo.RedirectStandardOutput = true;
+            processStartInfo.RedirectStandardError = true;
+            processStartInfo.UseShellExecute = false;
+            processStartInfo.CreateNoWindow = true;
+
+            //コマンドプロンプトを実行させる為のインスタンスを作成する
             using (Process process = new Process())
             {
-               
-                    process.StartInfo = processStartInfo;
-                    process.OutputDataReceived += (sender, e) => 
-                    { 
-                        UpdateRichTextBox(e.Data);
-                    };
-                    process.ErrorDataReceived +=(sender, e) =>
-                    {
-                        UpdateRichTextBox(e.Data);
-                    };
 
+                process.StartInfo = processStartInfo;
+                process.OutputDataReceived += (sender, e) =>
+                {
+                    //プロセスコマンドの通常ログ
+                    UpdateRichTextBox(e.Data);
+                };
+                process.ErrorDataReceived += (sender, e) =>
+                {
+                    //プロセスコマンドのエラーログイベント
+                    UpdateRichTextBox(e.Data);
+                };
+
+                try
+                {
+                    //プロセスを起動させる
                     process.Start();
-
                     process.BeginOutputReadLine();
                     process.BeginErrorReadLine();
-
+                    //プロセスの実行を終了迄、待機させる
                     await Task.Run(() => process.WaitForExit());
-            }        
-        }
+                }
+                catch (Exception ex)
+                {
+                    //エラーがあった場合のログを表示
+                    UpdateRichTextBox(ex.ToString());
+                }
 
+                //プロセスの解放
+                int checkInterval = 1000;
+                while (!process.HasExited)
+                {
+                    Thread.Sleep(checkInterval); // 1秒待つ
+
+                    // プロセスがまだ実行中の場合
+                    if (!process.HasExited)
+                    {
+                        UpdateRichTextBox("プロセス・コマンド" + command + "が終了の為、終了します。");
+                        process.Kill();
+                    }
+                }
+                //プロセスの終了と解放
+                process.Close();
+                process.Dispose();
+            }
+        }
 
         /// <summary>
         /// OUTPUT_DIRにMP3ファイルをコピーします。
