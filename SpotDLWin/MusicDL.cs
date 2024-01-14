@@ -18,13 +18,35 @@ namespace MusicDLWin
             InitializeComponent();
         }
 
+        /// <summary>
+        /// 起動プロセスの終了
+        /// </summary>
+        private void ProcessKills()
+        {
+            // 対象のexeファイル名
+            string exeFileName = "ffmpeg";
+            // 実行中のすべてのプロセスを取得
+            Process[] processes = Process.GetProcesses();
+            foreach (var process in processes)
+            {
+                // プロセス名が目的のexeファイル名と一致するか確認
+                if (process.ProcessName == exeFileName)
+                {
+                    // プロセスを終了
+                    process.Kill();
+                    process.Close();
+                    process.Dispose();
+                    UpdateRichTextBox("プロセスファイルが起動していた為終了させました。");
+                }
+            }
+        }
 
-        
         /// <summary>
         /// 作業開始
         /// </summary>
         private async void WorksFiles()
         {
+            ProcessKills();
             //ディレクトリチェック
             if (CheckDIr())
             {
@@ -224,26 +246,44 @@ namespace MusicDLWin
                     process.Start();
                     process.BeginOutputReadLine();
                     process.BeginErrorReadLine();
+
+                    //進行状況の表示
+                    UpdateRichTextBox("コマンドの実行を開始しました。");
+                    string massage = "プロセスがまだ実行中です";
+                    string waitMessage = "・";
                     //プロセスの実行を終了迄、待機させる
-                    await Task.Run(() => process.WaitForExit());
+                    int index = 1000;
+                    using (System.Threading.Timer timer = new System.Threading.Timer
+                            (_ => UpdateRichTextBox(massage = waitMessage = (waitMessage.Length>10) ? "・" : waitMessage += "・"), null, index, index))
+                                {
+                                    await Task.Run(() => process.WaitForExit());
+                                    timer.Change(Timeout.Infinite, Timeout.Infinite); // タイマー停止
+                        ;
+                    }
+
+                    //進行状況の表示完了
+                    UpdateRichTextBox("コマンドの実行が完了しました。");
                 }
                 catch (Exception ex)
                 {
                     //エラーがあった場合のログを表示
-                    UpdateRichTextBox(ex.ToString());
+                    UpdateRichTextBox("エラー：" + ex.ToString());
                 }
 
                 //プロセスの解放
-                int checkInterval = 1000;
+                int checkInterval = 10;
                 while (!process.HasExited)
                 {
                     Thread.Sleep(checkInterval); // 1秒待つ
 
                     // プロセスがまだ実行中の場合
-                    if (!process.HasExited)
+                    if (process.HasExited)
                     {
-                        UpdateRichTextBox("プロセス・コマンド" + command + "が終了の為、終了します。");
-                        process.Kill();
+                        UpdateRichTextBox("プロセスが終了しました。");
+                    }
+                    else
+                    {
+                        UpdateRichTextBox("プロセスがまだ処理中です・・。");
                     }
                 }
                 //プロセスの終了と解放

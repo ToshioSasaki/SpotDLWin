@@ -67,6 +67,12 @@
     <Compile Include="IniData.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="title.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="title.Designer.cs">
+      <DependentUpon>title.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Help.resx">
       <DependentUpon>Help.cs</DependentUpon>
     </EmbeddedResource>
@@ -78,6 +84,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="title.resx">
+      <DependentUpon>title.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="..\.editorconfig">
       <Link>.editorconfig</Link>
@@ -106,7 +115,9 @@
     <None Include="Resources\downloadfolder.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Body\MusicDL.png" />
     <Content Include="download-arrow.ico" />
+    <None Include="Title\MusicDL.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
