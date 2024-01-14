@@ -138,6 +138,7 @@ namespace MusicDLWin
             this.Download.Size = new System.Drawing.Size(39, 34);
             this.Download.TabIndex = 22;
             this.Download.UseVisualStyleBackColor = false;
+            this.Download.Click += new System.EventHandler(this.Download_Click);
             // 
             // label2
             // 
@@ -162,6 +163,7 @@ namespace MusicDLWin
             this.button1.Size = new System.Drawing.Size(39, 37);
             this.button1.TabIndex = 20;
             this.button1.UseVisualStyleBackColor = false;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // textOutDir
             // 
@@ -241,6 +243,7 @@ namespace MusicDLWin
             this.Name = "MusicDL";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "MusicDL Windows";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MusicDL_FormClosed);
             this.Load += new System.EventHandler(this.SpotDL_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();

@@ -441,12 +441,14 @@ namespace MusicDLWin
             help.ShowDialog();
         }
 
+        
+
         /// <summary>
-        /// ダウンロードボタン押下
+        /// ダウンロードボタンクリック
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Download_Click_1(object sender, EventArgs e)
+        private void Download_Click(object sender, EventArgs e)
         {
             WorksFiles();
         }
@@ -456,9 +458,18 @@ namespace MusicDLWin
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void button1_Click_1(object sender, EventArgs e)
+        private void button1_Click(object sender, EventArgs e)
         {
             MoveMakeFolder();
+        }
+
+        private void MusicDL_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            if (MessageBox.Show("MusicDLを強制終了させます。", "終了", MessageBoxButtons.OK, MessageBoxIcon.Information)==DialogResult.OK)
+            {
+                ProcessKills();
+                Application.Exit();
+            };
         }
     }
 
