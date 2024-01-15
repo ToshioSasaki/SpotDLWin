@@ -45,7 +45,7 @@
             // 
             // menuStrip1
             // 
-            this.menuStrip1.BackColor = System.Drawing.Color.LightBlue;
+            this.menuStrip1.BackColor = System.Drawing.Color.DarkSeaGreen;
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.戻るToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);

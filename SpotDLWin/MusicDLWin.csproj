@@ -119,5 +119,8 @@
     <Content Include="download-arrow.ico" />
     <None Include="Title\MusicDL.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="image\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

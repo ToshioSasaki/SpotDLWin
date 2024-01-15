@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq.Expressions;
+using System.Net.Mail;
+using System.Runtime.Remoting.Messaging;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -12,6 +14,11 @@ namespace MusicDLWin
 {
     public partial class MusicDL : Form
     {
+        private bool stop = false;
+        private string message = "プロセスがまだ実行中です";
+        private string waitMessage = "・";
+        ProcessStartInfo processStartInfo;
+        private Process process;
 
         public MusicDL()
         {
@@ -20,8 +27,9 @@ namespace MusicDLWin
 
         /// <summary>
         /// 起動プロセスの終了
+        /// <param name="stop">ダウンロード停止＝trueの時</param>
         /// </summary>
-        private void ProcessKills()
+        private void ProcessKills(bool stop=false)
         {
             // 対象のexeファイル名
             string exeFileName = "ffmpeg";
@@ -36,9 +44,22 @@ namespace MusicDLWin
                     process.Kill();
                     process.Close();
                     process.Dispose();
-                    UpdateRichTextBox("プロセスファイルが起動していた為終了させました。");
+                    if (stop == false)
+                    {
+                        UpdateRichTextBox("プロセスファイルが起動していた為終了させました。");
+                    }
                 }
             }
+        }
+
+        /// <summary>
+        /// アップデート
+        /// </summary>
+        private async void Update()
+        {
+            //最新バージョンの更新
+            string command1 = "pip install --upgrade spotdl";
+            await downloadExecuteCommand(command1, EnumWork.NONE);
         }
 
         /// <summary>
@@ -46,10 +67,11 @@ namespace MusicDLWin
         /// </summary>
         private async void WorksFiles()
         {
-            ProcessKills();
+            
             //ディレクトリチェック
             if (CheckDIr())
             {
+                ProcessKills();
                 //ローカルファイルのMP3ファイルをすべて消去する
                 DeleteMP3LocalFile();
 
@@ -59,19 +81,15 @@ namespace MusicDLWin
                 string sHms = now.Hour + ":" + now.Minute + ":" + now.Second;
                 UpdateRichTextBox("■ダウンロード作業を開始します。(" + sYmd + sHms + ")■");
 
-                //最新バージョンの更新
-                string command1 = "pip install --upgrade spotdl";
-                await ExecuteCommand(command1);
-
                 //URLダウンロード
-                string command2 = "spotdl " + inputTextBox.Text.Trim();
-                await ExecuteCommand(command2);
+                string command2 = "spotdl download " + inputTextBox.Text.Trim();
+                await downloadExecuteCommand(command2,EnumWork.DOWNLOAD);
 
-                //ローカルファイルをコピー
+                //ディレクトリ表示
                 int iDirctory = textOutDir.Text.Trim().LastIndexOf("\\");
                 string Directory = textOutDir.Text.Trim().Substring(0, iDirctory);
                 string command3 = "cd " + Directory + " && " + "cd " + textOutDir.Text.Trim() + " && dir *.mp3 /O-D";
-                await ExecuteCommand(command3);
+                ExecuteCommand(command3);
 
 
                 //終了ステートメント
@@ -83,7 +101,7 @@ namespace MusicDLWin
                 sHms = now.Hour + ":" + now.Minute + ":" + now.Second;
                 string message = (success) ? "ファイルコピー成功" : "ファイルコピー失敗";
                 string command4 = "echo ■ダウンロード終了 " + message  + " ファイルアップデート(" + updateMessage + ")"　+ sYmd + sHms;
-                await ExecuteCommand(command4);
+                ExecuteCommand(command4);
             }
         }
 
@@ -205,19 +223,82 @@ namespace MusicDLWin
         }
 
         /// <summary>
-        /// コマンドの実行
+        /// その他コマンドの実行
+        /// </summary>
+        /// <param name="command">コマンド</param>
+        /// <return>コマンド実行メッセージ</return>>
+        private void ExecuteCommand(string command)
+        {
+            //プロセススタートInfoのインスタンスを作成＆各プロパティを設定
+            ProcessStartInfo　processStartInfos = new ProcessStartInfo("cmd.exe", "/c " + command);
+            processStartInfos.RedirectStandardOutput = true;
+            processStartInfos.RedirectStandardOutput = true;
+            processStartInfos.RedirectStandardError = true;
+            processStartInfos.UseShellExecute = false;
+            processStartInfos.CreateNoWindow = true;
+
+            //コマンドプロンプトを実行させる為のインスタンスを作成する
+            using (Process processes = new Process())
+            {
+
+                processes.StartInfo = processStartInfo;
+                processes.OutputDataReceived += (sender, e) =>
+                {
+                    //プロセスコマンドの通常ログ
+                    UpdateRichTextBox(e.Data);
+                };
+                processes.ErrorDataReceived += (sender, e) =>
+                {
+                    //プロセスコマンドのエラーログイベント
+                    UpdateRichTextBox(e.Data);
+                };
+
+                try
+                {
+                    //プロセスを起動させる
+                    processes.Start();
+                    processes.BeginOutputReadLine();
+                    processes.BeginErrorReadLine();
+
+                    //進行状況の表示
+                    UpdateRichTextBox("コマンドの実行を開始しました。");
+                    //プロセスが起動している状態
+                    processes.WaitForExit();
+
+                    if (processes.HasExited)
+                    {
+                        //プロセスが終了している場合
+                        UpdateRichTextBox("プロセスが終了しました。");
+                        processes.Kill();
+                    }
+                    else
+                    {
+                        //プロセスが終了していない場合
+                        UpdateRichTextBox("プロセスがまだ処理中です・・。");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    //エラーがあった場合のログを表示
+                    UpdateRichTextBox("エラー：" + ex.ToString());
+                }
+
+                //プロセスの終了と解放
+                processes.Close();
+                processes.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// ダウンロードコマンドの実行(スレッド処理)
         /// </summary>
         /// <param name="command">spotdl + URL</param>
-        /// <param name="upgrade">upgrade時:true</param>
-        /// <param name="sYmd">開始日付</param>
-        /// <param name="sHms">開始時間</param>
-        /// <param name="boolFiles">ファイルコピー：true=ファイルコピーする、false:何もしない</param>
-        /// <return>コマンド実行メッセージ</return>>
-        private async Task ExecuteCommand(string command)
+        /// <param name="EnumWork">実行パターン</param>
+        /// <return>コマンド実行メッセージ</return>
+        private async Task downloadExecuteCommand(string command, EnumWork Work)
         {
-
             //プロセススタートInfoのインスタンスを作成＆各プロパティを設定
-            ProcessStartInfo processStartInfo = new ProcessStartInfo("cmd.exe", "/c " + command);
+            processStartInfo = new ProcessStartInfo("cmd.exe", "/c " + command);
             processStartInfo.RedirectStandardOutput = true;
             processStartInfo.RedirectStandardOutput = true;
             processStartInfo.RedirectStandardError = true;
@@ -225,19 +306,19 @@ namespace MusicDLWin
             processStartInfo.CreateNoWindow = true;
 
             //コマンドプロンプトを実行させる為のインスタンスを作成する
-            using (Process process = new Process())
+            using (process = new Process())
             {
 
                 process.StartInfo = processStartInfo;
                 process.OutputDataReceived += (sender, e) =>
                 {
                     //プロセスコマンドの通常ログ
-                    UpdateRichTextBox(e.Data);
+                    UpdateRichTextBox(e.Data,true);
                 };
                 process.ErrorDataReceived += (sender, e) =>
                 {
                     //プロセスコマンドのエラーログイベント
-                    UpdateRichTextBox(e.Data);
+                    UpdateRichTextBox(e.Data,true);
                 };
 
                 try
@@ -248,44 +329,56 @@ namespace MusicDLWin
                     process.BeginErrorReadLine();
 
                     //進行状況の表示
-                    UpdateRichTextBox("コマンドの実行を開始しました。");
-                    string massage = "プロセスがまだ実行中です";
-                    string waitMessage = "・";
+                    UpdateRichTextBox("コマンドの実行を開始しました。",true);
+
                     //プロセスの実行を終了迄、待機させる
-                    int index = 1000;
-                    using (System.Threading.Timer timer = new System.Threading.Timer
-                            (_ => UpdateRichTextBox(massage = waitMessage = (waitMessage.Length>10) ? "・" : waitMessage += "・"), null, index, index))
-                                {
-                                    await Task.Run(() => process.WaitForExit());
-                                    timer.Change(Timeout.Infinite, Timeout.Infinite); // タイマー停止
-                        ;
+                    if (EnumWork.DOWNLOAD == Work)
+                    {
+                        timer1.Enabled = true;
+                        timer1.Interval = 1000;
+                        timer1.Start();
                     }
 
-                    //進行状況の表示完了
-                    UpdateRichTextBox("コマンドの実行が完了しました。");
+                    if (stop && EnumWork.DOWNLOAD == Work)
+                    {
+                        //プロセス停止ボタンを押下した時
+                        process.Kill();
+                        stop = false;
+                        timer1.Stop();
+                    }
+                    else
+                    {
+                        //プロセスが起動している状態
+                        await Task.Run(() => process.WaitForExit());
+
+                        if (process.HasExited)
+                        {
+                            //プロセスが終了している場合
+                            if (EnumWork.DOWNLOAD == Work)
+                            {
+                                stop = false;
+                                timer1.Stop();
+                                process.Kill();
+                                UpdateRichTextBox("ダウンロードが終了しました。", true);
+                            } else
+                            {
+                                UpdateRichTextBox("アップデートが終了しました。", true);
+                            }
+
+                        }
+                        else
+                        {
+                            //プロセスが終了していない場合
+                            UpdateRichTextBox("プロセスがまだ処理中です・・。", true);
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
                     //エラーがあった場合のログを表示
-                    UpdateRichTextBox("エラー：" + ex.ToString());
+                    UpdateRichTextBox("エラー：" + ex.ToString(),true);
                 }
 
-                //プロセスの解放
-                int checkInterval = 10;
-                while (!process.HasExited)
-                {
-                    Thread.Sleep(checkInterval); // 1秒待つ
-
-                    // プロセスがまだ実行中の場合
-                    if (process.HasExited)
-                    {
-                        UpdateRichTextBox("プロセスが終了しました。");
-                    }
-                    else
-                    {
-                        UpdateRichTextBox("プロセスがまだ処理中です・・。");
-                    }
-                }
                 //プロセスの終了と解放
                 process.Close();
                 process.Dispose();
@@ -332,20 +425,49 @@ namespace MusicDLWin
         }
 
         /// <summary>
-        /// スレッドセーフにリッチテキストに表示します。
+        /// スレッドセーフにリッチテキストに表示します
         /// </summary>
         /// <param name="text">表示する文字</param>
-        private void UpdateRichTextBox(string text)
+        /// <param name="Thread">スレッド時：True</param>
+        private void UpdateRichTextBox(string text,bool Thread=false)
         {
             if (text != null)
             {
-                // スレッドセーフな方法でRichTextBoxを更新
-                Invoke((MethodInvoker)(() =>
+
+                if (Thread)
                 {
-                    ResultText.AppendText(text + "\n");
-                    ResultText.ScrollToCaret();
-                }));
+                    try
+                    {
+                        // スレッドセーフな方法でRichTextBoxを更新
+                        Invoke((MethodInvoker)(() =>
+                        {
+                            ResultText.AppendText(text + "\n");
+                            ResultText.ScrollToCaret();
+                        }));
+                    }
+                    catch (Exception ex)
+                    {
+                        UpdateRichText(ex.Message.ToString());
+                    }
+                }
+                else
+                {
+                    //通常のシングルスレッドの場合
+                    UpdateRichText(text);
+                }
             }
+        }
+
+        /// <summary>
+        /// リッチテキストボックスのシングルスレッドバージョン
+        /// </summary>
+        /// <param name="text">表示する文字列</param>
+        private void UpdateRichText(string text)
+        {
+            //通常のシングルスレッドの場合
+            Application.DoEvents();
+            ResultText.AppendText(text + "\n");
+            ResultText.ScrollToCaret();
         }
 
         /// <summary>
@@ -393,6 +515,15 @@ namespace MusicDLWin
 
             //OutPutフォルダの削除
             this.CheckOutPutDeleteFiles();
+
+            timer1.Enabled = false;
+
+            //プログレスバー
+            progressBar1.Value = 0;
+            progressBar1.Maximum = 100;
+            progressBar1.Minimum = 0;
+            progressBar1.Step = 1;
+            progressBar1.Enabled = true;
 
         }
 
@@ -463,14 +594,83 @@ namespace MusicDLWin
             MoveMakeFolder();
         }
 
+        /// <summary>
+        /// MusicDLクローズイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MusicDL_FormClosed(object sender, FormClosedEventArgs e)
         {
             if (MessageBox.Show("MusicDLを強制終了させます。", "終了", MessageBoxButtons.OK, MessageBoxIcon.Information)==DialogResult.OK)
             {
                 ProcessKills();
+                this.Dispose();
                 Application.Exit();
             };
         }
+
+        /// <summary>
+        /// ダウンロード停止ボタン
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void StopButton_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("ダウンロードを停止させます。よろしいですか？。", "確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+            {
+                try
+                {
+                    stop = true;
+                    process.Close();
+                    process.Dispose();
+                    process.Kill();
+                }
+                catch (Exception ex)
+                {
+                }
+                MessageBox.Show("ダウンロード停止させました。", "ダウンロード停止", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            };
+        }
+
+        /// <summary>
+        /// タイマーイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            progressBar1.Value = progressBar1.Value > 99 ? progressBar1.Minimum : ++progressBar1.Value;
+            Application.DoEvents();
+        }
+
+        /// <summary>
+        /// アップデート処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("最新バージョンにアップデートします。よろしいですか？", "確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+            {
+                //最新バージョンの更新
+                Update();
+            }
+        }
+
+        private void progressBar1_Click(object sender, EventArgs e)
+        {
+
+        }
+    }
+
+    /// <summary>
+    /// 列挙ENUM型
+    /// </summary>
+    public enum EnumWork
+    {
+        NONE,
+        DOWNLOAD,
+        COPY,
     }
 
 }
