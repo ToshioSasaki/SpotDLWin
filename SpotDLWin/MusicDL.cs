@@ -15,10 +15,9 @@ namespace MusicDLWin
     public partial class MusicDL : Form
     {
         private bool stop = false;
-        private string message = "プロセスがまだ実行中です";
-        private string waitMessage = "・";
         ProcessStartInfo processStartInfo;
         private Process process;
+        private int Kaisuu;
 
         public MusicDL()
         {
@@ -63,7 +62,7 @@ namespace MusicDLWin
         }
 
         /// <summary>
-        /// 作業開始
+        /// 作業開始・メイン処理
         /// </summary>
         private async void WorksFiles()
         {
@@ -82,15 +81,14 @@ namespace MusicDLWin
                 UpdateRichTextBox("■ダウンロード作業を開始します。(" + sYmd + sHms + ")■");
 
                 //URLダウンロード
-                string command2 = "spotdl download --max-retries 3" + inputTextBox.Text.Trim();
+                string command2 = "spotdl download " + inputTextBox.Text.Trim() + " --max-retries " + this.Kaisuu;
                 await downloadExecuteCommand(command2,EnumWork.DOWNLOAD);
 
                 //ディレクトリ表示
                 int iDirctory = textOutDir.Text.Trim().LastIndexOf("\\");
                 string Directory = textOutDir.Text.Trim().Substring(0, iDirctory);
                 string command3 = "cd " + Directory + " && " + "cd " + textOutDir.Text.Trim() + " && dir *.mp3 /O-D";
-                ExecuteCommand(command3);
-
+                await ExecuteCommand(command3);
 
                 //終了ステートメント
                 DeleteMP3OutPutFile();
@@ -101,7 +99,11 @@ namespace MusicDLWin
                 sHms = now.Hour + ":" + now.Minute + ":" + now.Second;
                 string message = (success) ? "ファイルコピー成功" : "ファイルコピー失敗";
                 string command4 = "echo ■ダウンロード終了 " + message  + " ファイルアップデート(" + updateMessage + ")"　+ sYmd + sHms;
-                ExecuteCommand(command4);
+                await ExecuteCommand(command4);
+
+                //プログレスバーとタイマーを初期状態に戻す
+                progressBar1.Value = 0;
+                timer1.Stop();
             }
         }
 
@@ -227,7 +229,7 @@ namespace MusicDLWin
         /// </summary>
         /// <param name="command">コマンド</param>
         /// <return>コマンド実行メッセージ</return>>
-        private void ExecuteCommand(string command)
+        private async Task ExecuteCommand(string command)
         {
             //プロセススタートInfoのインスタンスを作成＆各プロパティを設定
             ProcessStartInfo　processStartInfos = new ProcessStartInfo("cmd.exe", "/c " + command);
@@ -240,19 +242,17 @@ namespace MusicDLWin
             //コマンドプロンプトを実行させる為のインスタンスを作成する
             using (Process processes = new Process())
             {
-
-                processes.StartInfo = processStartInfo;
+                processes.StartInfo = processStartInfos;
                 processes.OutputDataReceived += (sender, e) =>
                 {
                     //プロセスコマンドの通常ログ
-                    UpdateRichTextBox(e.Data);
+                    UpdateRichTextBox(e.Data, true);
                 };
                 processes.ErrorDataReceived += (sender, e) =>
                 {
                     //プロセスコマンドのエラーログイベント
-                    UpdateRichTextBox(e.Data);
+                    UpdateRichTextBox(e.Data, true);
                 };
-
                 try
                 {
                     //プロセスを起動させる
@@ -261,31 +261,32 @@ namespace MusicDLWin
                     processes.BeginErrorReadLine();
 
                     //進行状況の表示
-                    UpdateRichTextBox("コマンドの実行を開始しました。");
+                    UpdateRichTextBox("コマンドの実行を開始しました。", true);
                     //プロセスが起動している状態
-                    processes.WaitForExit();
+                    await Task.Run(() => process.WaitForExit());
 
                     if (processes.HasExited)
                     {
                         //プロセスが終了している場合
-                        UpdateRichTextBox("プロセスが終了しました。");
-                        processes.Kill();
+                        UpdateRichTextBox("プロセスが終了しました。", true);
                     }
                     else
                     {
                         //プロセスが終了していない場合
-                        UpdateRichTextBox("プロセスがまだ処理中です・・。");
+                        UpdateRichTextBox("プロセスがまだ処理中です・・。", true);
                     }
                 }
                 catch (Exception ex)
                 {
                     //エラーがあった場合のログを表示
-                    UpdateRichTextBox("エラー：" + ex.ToString());
+                    //UpdateRichTextBox("エラー：" + ex.ToString(), true);
                 }
-
                 //プロセスの終了と解放
                 processes.Close();
                 processes.Dispose();
+                
+
+                
             }
         }
 
@@ -334,6 +335,7 @@ namespace MusicDLWin
                     //プロセスの実行を終了迄、待機させる
                     if (EnumWork.DOWNLOAD == Work)
                     {
+                        progressBar1.Value = 0;
                         timer1.Enabled = true;
                         timer1.Interval = 1000;
                         timer1.Start();
@@ -342,7 +344,6 @@ namespace MusicDLWin
                     if (stop && EnumWork.DOWNLOAD == Work)
                     {
                         //プロセス停止ボタンを押下した時
-                        process.Kill();
                         stop = false;
                         timer1.Stop();
                     }
@@ -358,7 +359,6 @@ namespace MusicDLWin
                             {
                                 stop = false;
                                 timer1.Stop();
-                                process.Kill();
                                 UpdateRichTextBox("ダウンロードが終了しました。", true);
                             } else
                             {
@@ -378,10 +378,12 @@ namespace MusicDLWin
                     //エラーがあった場合のログを表示
                     UpdateRichTextBox("エラー：" + ex.ToString(),true);
                 }
-
                 //プロセスの終了と解放
                 process.Close();
                 process.Dispose();
+                
+
+                
             }
         }
 
@@ -511,7 +513,8 @@ namespace MusicDLWin
             //設定ファイルからディレクトリを読込み
             IniData objIni = new IniData();
             objIni.GetIniData();
-            textOutDir.Text = objIni.OutPath;
+            textOutDir.Text = objIni.getOutPath;
+            this.Kaisuu = objIni.getKaisuu;
 
             //OutPutフォルダの削除
             this.CheckOutPutDeleteFiles();
@@ -657,8 +660,34 @@ namespace MusicDLWin
             }
         }
 
-        private void progressBar1_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Helpを表示
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
         {
+            //Helpを表示
+            Help help = new Help();
+            help.ShowDialog();
+
+        }
+
+        /// <summary>
+        /// 試行回数を表示
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void 試行回数ToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            using (Kaisuu kaisu = new Kaisuu())
+            {
+                kaisu.KaisuuValue = this.Kaisuu;
+                if (kaisu.ShowDialog() == DialogResult.OK)
+                {
+                    this.Kaisuu = kaisu.KaisuuValue;
+                }
+            }
 
         }
     }

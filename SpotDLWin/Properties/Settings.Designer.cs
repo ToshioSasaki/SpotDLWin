@@ -34,5 +34,17 @@ namespace MusicDLWin.Properties {
                 this["OutPath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int Kaisuu {
+            get {
+                return ((int)(this["Kaisuu"]));
+            }
+            set {
+                this["Kaisuu"] = value;
+            }
+        }
     }
 }

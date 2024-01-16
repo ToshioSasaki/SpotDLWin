@@ -1,9 +1,12 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="SpotDLWin.Properties" GeneratedClassName="Settings">
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="MusicDLWin.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
     <Setting Name="OutPath" Type="System.String" Scope="User">
       <Value Profile="(Default)">c:\spotdl</Value>
+    </Setting>
+    <Setting Name="Kaisuu" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">1</Value>
     </Setting>
   </Settings>
 </SettingsFile>

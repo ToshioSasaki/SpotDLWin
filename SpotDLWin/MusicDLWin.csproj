@@ -58,6 +58,12 @@
     <Compile Include="Help.Designer.cs">
       <DependentUpon>Help.cs</DependentUpon>
     </Compile>
+    <Compile Include="Kaisuu.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Kaisuu.Designer.cs">
+      <DependentUpon>Kaisuu.cs</DependentUpon>
+    </Compile>
     <Compile Include="MusicDL.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -75,6 +81,9 @@
     </Compile>
     <EmbeddedResource Include="Help.resx">
       <DependentUpon>Help.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Kaisuu.resx">
+      <DependentUpon>Kaisuu.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MusicDL.resx">
       <DependentUpon>MusicDL.cs</DependentUpon>
