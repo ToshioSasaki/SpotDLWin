@@ -65,11 +65,18 @@ namespace MusicDLWin
             kaisuu = kaisuu.Trim();
             if (string.IsNullOrEmpty(kaisuu))
             {
-                textBox1.Text = "0";
-                return 0;
+                textBox1.Text = "1";
+                return 1;
             } else
             {
                 textBox1.Text = kaisuu;
+                int iKaisu = int.Parse(kaisuu);
+                if (iKaisu<1 && iKaisu>5)
+                {
+                    MessageBox.Show("試行回数は0以上6以下を設定してください", "試行回数", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    textBox1.Text = "1";
+                    return 1;
+                }
                 return int.Parse(kaisuu);
             }
         

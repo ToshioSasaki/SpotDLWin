@@ -36,10 +36,15 @@ namespace MusicDLWin
             Result += "※ダウンロードファイルを販売等の目的で使わないようにお願いします。\n";
             Result += "\n";
             Result += "■このプログラムについて・規約等について■\n";
-            Result += "・ダウンロード曲数が多すぎると再リトライが何度もかかり始めダウンロードが開始されなくなります。\n";
-            Result += "・設定より再リトライ回数が設定できますのでダウンロードに時間がかかる場合は値を小さくしてください。\n";
             Result += "※このプログラム及びSpotDLを使ったトラブル等は一切法的な措置等は関与致しません。\n";
             Result += "・本GitHub上のプログラムからブランチを切っての改造は許可いたしますがコピーでの改編や改造は許可いたしません。\n";
+            Result += "\n";
+            Result += "■使い方など■\n";
+            Result += "・プレイリストを入力するとMP3のアルバム名称が自動で入力されます。\n";
+            Result += "・MP3のプロパティのトラックNoがダウンロード順に自動で設定されます。\n";
+            Result += "・上記2点の内容によりitunesにドラッグすると１つのアルバムとして管理しやすくなると思います。\n";
+            Result += "・ダウンロード曲数が多すぎると再リトライが何度もかかり始めダウンロードが開始されなくなります。\n";
+            Result += "・設定より再リトライ回数が設定できますのでダウンロードに時間がかかる場合は値を小さくしてください。1が最小です。\n";
             Result += "\n";
             Result += "　Copyright © 2024-1. All rights reserved. Toshiharu Sasaki \n";
             Result += "  How to Reference SpotDL https://github.com/spotDL/spotify-downloadern \n";
@@ -50,6 +55,11 @@ namespace MusicDLWin
         {
             this.Close();
             this.Dispose();
+        }
+
+        private void HelpRichText_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

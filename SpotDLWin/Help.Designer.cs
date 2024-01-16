@@ -42,6 +42,7 @@
             this.HelpRichText.Size = new System.Drawing.Size(799, 422);
             this.HelpRichText.TabIndex = 0;
             this.HelpRichText.Text = "";
+            this.HelpRichText.TextChanged += new System.EventHandler(this.HelpRichText_TextChanged);
             // 
             // menuStrip1
             // 
