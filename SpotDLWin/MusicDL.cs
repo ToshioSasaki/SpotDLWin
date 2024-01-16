@@ -82,7 +82,7 @@ namespace MusicDLWin
                 UpdateRichTextBox("■ダウンロード作業を開始します。(" + sYmd + sHms + ")■");
 
                 //URLダウンロード
-                string command2 = "spotdl download " + inputTextBox.Text.Trim();
+                string command2 = "spotdl download --max-retries 3" + inputTextBox.Text.Trim();
                 await downloadExecuteCommand(command2,EnumWork.DOWNLOAD);
 
                 //ディレクトリ表示

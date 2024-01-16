@@ -36,24 +36,27 @@ namespace MusicDLWin
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.ファイルToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ダウンロードToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.出力先ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.終了ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.アプリを終了しますToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ヘルプToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ResultText = new System.Windows.Forms.RichTextBox();
             this.Download = new System.Windows.Forms.Button();
-            this.label2 = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
             this.textOutDir = new System.Windows.Forms.TextBox();
-            this.URL = new System.Windows.Forms.Label();
             this.inputTextBox = new System.Windows.Forms.TextBox();
             this.textAlbumName = new System.Windows.Forms.TextBox();
-            this.label7 = new System.Windows.Forms.Label();
             this.StopButton = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.picturePlayList = new System.Windows.Forms.PictureBox();
+            this.pictureLinkAddress = new System.Windows.Forms.PictureBox();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.menuStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picturePlayList)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureLinkAddress)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // contextMenuStrip1
@@ -87,14 +90,21 @@ namespace MusicDLWin
             // ダウンロードToolStripMenuItem
             // 
             this.ダウンロードToolStripMenuItem.Name = "ダウンロードToolStripMenuItem";
-            this.ダウンロードToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.ダウンロードToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.ダウンロードToolStripMenuItem.Text = "ﾀﾞｳﾝﾛｰﾄﾞ";
             this.ダウンロードToolStripMenuItem.Click += new System.EventHandler(this.ダウンロードToolStripMenuItem_Click);
+            // 
+            // ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem
+            // 
+            this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Name = "ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem";
+            this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Text = "ｱｯﾌﾟﾃﾞｰﾄ";
+            this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Click += new System.EventHandler(this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem_Click);
             // 
             // 出力先ToolStripMenuItem
             // 
             this.出力先ToolStripMenuItem.Name = "出力先ToolStripMenuItem";
-            this.出力先ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.出力先ToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.出力先ToolStripMenuItem.Text = "出力先";
             this.出力先ToolStripMenuItem.Click += new System.EventHandler(this.出力先ToolStripMenuItem_Click);
             // 
@@ -145,17 +155,6 @@ namespace MusicDLWin
             this.Download.UseVisualStyleBackColor = false;
             this.Download.Click += new System.EventHandler(this.Download_Click);
             // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.BackColor = System.Drawing.Color.ForestGreen;
-            this.label2.Font = new System.Drawing.Font("游ゴシック", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.label2.Location = new System.Drawing.Point(3, 259);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(144, 19);
-            this.label2.TabIndex = 27;
-            this.label2.Text = "出力先フォルダ指定";
-            // 
             // button1
             // 
             this.button1.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("button1.BackgroundImage")));
@@ -181,17 +180,6 @@ namespace MusicDLWin
             this.textOutDir.TabIndex = 2;
             this.textOutDir.Text = "c:\\spotdl\\";
             // 
-            // URL
-            // 
-            this.URL.AutoSize = true;
-            this.URL.BackColor = System.Drawing.Color.ForestGreen;
-            this.URL.Font = new System.Drawing.Font("游ゴシック", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.URL.Location = new System.Drawing.Point(4, 140);
-            this.URL.Name = "URL";
-            this.URL.Size = new System.Drawing.Size(144, 19);
-            this.URL.TabIndex = 24;
-            this.URL.Text = "リンク又はアドレス";
-            // 
             // inputTextBox
             // 
             this.inputTextBox.BackColor = System.Drawing.Color.YellowGreen;
@@ -212,17 +200,6 @@ namespace MusicDLWin
             this.textAlbumName.Size = new System.Drawing.Size(340, 28);
             this.textAlbumName.TabIndex = 0;
             // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.BackColor = System.Drawing.Color.ForestGreen;
-            this.label7.Font = new System.Drawing.Font("游ゴシック", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
-            this.label7.Location = new System.Drawing.Point(0, 51);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(157, 19);
-            this.label7.TabIndex = 25;
-            this.label7.Text = "プレイリストタイトル";
-            // 
             // StopButton
             // 
             this.StopButton.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("StopButton.BackgroundImage")));
@@ -240,25 +217,45 @@ namespace MusicDLWin
             this.timer1.Enabled = true;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem
-            // 
-            this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Name = "ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem";
-            this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Text = "ｱｯﾌﾟﾃﾞｰﾄ";
-            this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Click += new System.EventHandler(this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem_Click);
-            // 
             // progressBar1
             // 
             this.progressBar1.BackColor = System.Drawing.Color.DarkOliveGreen;
             this.progressBar1.ForeColor = System.Drawing.Color.Chartreuse;
-            this.progressBar1.Location = new System.Drawing.Point(4, 410);
+            this.progressBar1.Location = new System.Drawing.Point(4, 405);
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(728, 16);
+            this.progressBar1.Size = new System.Drawing.Size(802, 21);
             this.progressBar1.Step = 1;
             this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.progressBar1.TabIndex = 30;
             this.progressBar1.Value = 1;
             this.progressBar1.Click += new System.EventHandler(this.progressBar1_Click);
+            // 
+            // picturePlayList
+            // 
+            this.picturePlayList.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("picturePlayList.BackgroundImage")));
+            this.picturePlayList.Location = new System.Drawing.Point(3, 47);
+            this.picturePlayList.Name = "picturePlayList";
+            this.picturePlayList.Size = new System.Drawing.Size(152, 25);
+            this.picturePlayList.TabIndex = 31;
+            this.picturePlayList.TabStop = false;
+            // 
+            // pictureLinkAddress
+            // 
+            this.pictureLinkAddress.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("pictureLinkAddress.BackgroundImage")));
+            this.pictureLinkAddress.Location = new System.Drawing.Point(5, 135);
+            this.pictureLinkAddress.Name = "pictureLinkAddress";
+            this.pictureLinkAddress.Size = new System.Drawing.Size(152, 26);
+            this.pictureLinkAddress.TabIndex = 32;
+            this.pictureLinkAddress.TabStop = false;
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("pictureBox1.BackgroundImage")));
+            this.pictureBox1.Location = new System.Drawing.Point(5, 252);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(152, 28);
+            this.pictureBox1.TabIndex = 33;
+            this.pictureBox1.TabStop = false;
             // 
             // MusicDL
             // 
@@ -267,17 +264,17 @@ namespace MusicDLWin
             this.BackColor = System.Drawing.SystemColors.Control;
             this.BackgroundImage = global::MusicDLWin.Properties.Resources.MusicDL1;
             this.ClientSize = new System.Drawing.Size(878, 677);
+            this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.pictureLinkAddress);
+            this.Controls.Add(this.picturePlayList);
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.StopButton);
             this.Controls.Add(this.ResultText);
             this.Controls.Add(this.Download);
-            this.Controls.Add(this.label2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.textOutDir);
-            this.Controls.Add(this.URL);
             this.Controls.Add(this.inputTextBox);
             this.Controls.Add(this.textAlbumName);
-            this.Controls.Add(this.label7);
             this.Controls.Add(this.menuStrip1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -291,6 +288,9 @@ namespace MusicDLWin
             this.Load += new System.EventHandler(this.SpotDL_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picturePlayList)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureLinkAddress)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -307,17 +307,17 @@ namespace MusicDLWin
         private System.Windows.Forms.ToolStripMenuItem ヘルプToolStripMenuItem;
         private System.Windows.Forms.RichTextBox ResultText;
         private System.Windows.Forms.Button Download;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.TextBox textOutDir;
-        private System.Windows.Forms.Label URL;
         private System.Windows.Forms.TextBox inputTextBox;
         private System.Windows.Forms.TextBox textAlbumName;
-        private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Button StopButton;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.ToolStripMenuItem ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem;
         private System.Windows.Forms.ProgressBar progressBar1;
+        private System.Windows.Forms.PictureBox picturePlayList;
+        private System.Windows.Forms.PictureBox pictureLinkAddress;
+        private System.Windows.Forms.PictureBox pictureBox1;
     }
 }
 
