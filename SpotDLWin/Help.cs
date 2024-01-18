@@ -55,7 +55,7 @@ namespace MusicDLWin
             Result += "・随時ファイルメニューより行ってください。\n";
             Result += "※アップデート時には本アプリケーションを管理者権限で立ち上げる必要があります。\n";
             Result += "\n";
-            Result += "■Phytonのアップデートについて■";
+            Result += "■Phytonのアップデートについて■\n";
             Result += "・Chocolateyを使用します。\n";
             Result += "・ChocolateyをWindows 11にインストールするには、以下の手順を実行します：\n";
             Result += "\n";
@@ -78,7 +78,7 @@ namespace MusicDLWin
             Result += "\n";
             Result += "・インストールが完了したら、choco または choco -? コマンドを入力して、Chocolateyの使用を開始できます。\n";
             Result += "\n";
-            Result += "■その他■";
+            Result += "■その他■\n";
             Result += "　Copyright © 2024-1. All rights reserved. Toshiharu Sasaki \n";
             Result += "  How to Reference SpotDL https://github.com/spotDL/spotify-downloadern \n";
             return Result;
