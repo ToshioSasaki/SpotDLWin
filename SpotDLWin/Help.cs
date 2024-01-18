@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace MusicDLWin
 {
@@ -46,6 +48,37 @@ namespace MusicDLWin
             Result += "・ダウンロード曲数が多すぎると再リトライが何度もかかり始めダウンロードが開始されなくなります。\n";
             Result += "・設定より再リトライ回数が設定できますのでダウンロードに時間がかかる場合は値を小さくしてください。1が最小です。\n";
             Result += "\n";
+            Result += "･タイムアウト回数について。タイムアウトを1分～10分設定できます。\n";
+            Result += "･所定の時間にダウンロードできないものはダウンロードを強制的に終了します。\n";
+            Result += "\n";
+            Result += "■アップデートについて■\n";
+            Result += "・随時ファイルメニューより行ってください。\n";
+            Result += "※アップデート時には本アプリケーションを管理者権限で立ち上げる必要があります。\n";
+            Result += "\n";
+            Result += "■Phytonのアップデートについて■";
+            Result += "・Chocolateyを使用します。\n";
+            Result += "・ChocolateyをWindows 11にインストールするには、以下の手順を実行します：\n";
+            Result += "\n";
+            Result += "・PowerShellを管理者権限で開く:\n";
+            Result += "\n";
+            Result += "・Windows + R キーを押して「Run」を開き、「PowerShell」と入力して Ctrl+Shift + Enter を押して管理者権限でPowerShellを開きます。\n";
+            Result += "・または、スタートメニューを右クリックして「Terminal(Admin)」オプションを選択します。\n";
+            Result += "・実行ポリシーの確認:\n";
+            Result += "\n";
+            Result += "・PowerShellで Get-ExecutionPolicy コマンドを実行して実行ポリシーの状態を確認します。\n";
+            Result += "・もし「Restricted」と表示された場合は、Set - ExecutionPolicy AllSigned または Set - ExecutionPolicy Bypass - Scope Process コマンドを実行してポリシーを変更します。\n";
+            Result += "・Chocolateyのインストールコマンドの実行:\n";
+            Result += "\n";
+            Result += "・以下のコマンドをPowerShellにコピー＆ペーストして実行します：\n";
+            Result += "less\n";
+            Result += "Copy code\n";
+            Result += "Set - ExecutionPolicy Bypass - Scope Process - Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol - bor 3072; iex((New - Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))\n";
+            Result += "・このコマンドは、Chocolateyのインストールスクリプトをダウンロードして実行します。インストールが完了すると、Chocolateyが使用可能になります。\n";
+            Result += "・Chocolateyの使用:\n";
+            Result += "\n";
+            Result += "・インストールが完了したら、choco または choco -? コマンドを入力して、Chocolateyの使用を開始できます。\n";
+            Result += "\n";
+            Result += "■その他■";
             Result += "　Copyright © 2024-1. All rights reserved. Toshiharu Sasaki \n";
             Result += "  How to Reference SpotDL https://github.com/spotDL/spotify-downloadern \n";
             return Result;

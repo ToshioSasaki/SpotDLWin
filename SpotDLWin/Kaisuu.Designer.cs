@@ -34,6 +34,8 @@
             this.終了ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.textTimeOut = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -45,7 +47,7 @@
             this.終了ToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(233, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(277, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -83,12 +85,35 @@
             this.label1.TabIndex = 2;
             this.label1.Text = "再試行回数";
             // 
+            // textTimeOut
+            // 
+            this.textTimeOut.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textTimeOut.Font = new System.Drawing.Font("游ゴシック", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.textTimeOut.Location = new System.Drawing.Point(12, 74);
+            this.textTimeOut.Multiline = true;
+            this.textTimeOut.Name = "textTimeOut";
+            this.textTimeOut.Size = new System.Drawing.Size(111, 32);
+            this.textTimeOut.TabIndex = 2;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("游ゴシック", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label2.Location = new System.Drawing.Point(129, 85);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(132, 21);
+            this.label2.TabIndex = 4;
+            this.label2.Text = "タイムアウト(分)";
+            // 
             // Kaisuu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Green;
-            this.ClientSize = new System.Drawing.Size(233, 82);
+            this.ClientSize = new System.Drawing.Size(277, 125);
+            this.ControlBox = false;
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.textTimeOut);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.menuStrip1);
@@ -100,6 +125,7 @@
             this.Name = "Kaisuu";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "設定";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Kaisuu_FormClosed);
             this.Load += new System.EventHandler(this.Kaisuu_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
@@ -115,5 +141,7 @@
         private System.Windows.Forms.ToolStripMenuItem 終了ToolStripMenuItem;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox textTimeOut;
+        private System.Windows.Forms.Label label2;
     }
 }

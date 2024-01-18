@@ -8,5 +8,8 @@
     <Setting Name="Kaisuu" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">1</Value>
     </Setting>
+    <Setting Name="TimeOut" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">60000</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
