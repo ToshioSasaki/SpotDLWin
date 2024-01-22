@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace MusicDLWin
 {
-    public class Admin
+    public class clsAdmin
     {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public Admin() { }
+        public clsAdmin() { }
 
         /// <summary>
         /// プロパティ

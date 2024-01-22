@@ -3,13 +3,13 @@ using System.Windows.Forms;
 
 namespace MusicDLWin
 {
-    public partial class title : Form
+    public partial class frmTitle : Form
     {
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public title()
+        public frmTitle()
         {
             InitializeComponent();
             // タイマーの設定
@@ -30,8 +30,18 @@ namespace MusicDLWin
             ((Timer)sender).Stop();
 
             // メイン画面を表示
-            MusicDL mainForm = new MusicDL();
+            frmMusicDL mainForm = new frmMusicDL();
             mainForm.Show();
+        }
+
+        /// <summary>
+        /// フォームロードイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void frmTitle_Load(object sender, EventArgs e)
+        {
+            this.Visible = false;
         }
     }
 }

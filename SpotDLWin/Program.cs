@@ -16,7 +16,7 @@ namespace MusicDLWin
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new title());
+            Application.Run(new frmTitle());
         }
     }
 }

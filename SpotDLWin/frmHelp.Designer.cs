@@ -1,6 +1,6 @@
 ﻿namespace MusicDLWin
 {
-    partial class Help
+    partial class frmHelp
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Help));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmHelp));
             this.HelpRichText = new System.Windows.Forms.RichTextBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.戻るToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -37,9 +37,9 @@
             // 
             // HelpRichText
             // 
-            this.HelpRichText.Location = new System.Drawing.Point(1, 29);
+            this.HelpRichText.Location = new System.Drawing.Point(0, 24);
             this.HelpRichText.Name = "HelpRichText";
-            this.HelpRichText.Size = new System.Drawing.Size(799, 422);
+            this.HelpRichText.Size = new System.Drawing.Size(981, 538);
             this.HelpRichText.TabIndex = 0;
             this.HelpRichText.Text = "";
             this.HelpRichText.TextChanged += new System.EventHandler(this.HelpRichText_TextChanged);
@@ -51,7 +51,7 @@
             this.戻るToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(800, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(984, 24);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -60,13 +60,13 @@
             this.戻るToolStripMenuItem.Name = "戻るToolStripMenuItem";
             this.戻るToolStripMenuItem.Size = new System.Drawing.Size(40, 20);
             this.戻るToolStripMenuItem.Text = "戻る";
-            this.戻るToolStripMenuItem.Click += new System.EventHandler(this.戻るToolStripMenuItem_Click);
+            this.戻るToolStripMenuItem.Click += new System.EventHandler(this.戻るToolStripMenuItem_Click_1);
             // 
-            // Help
+            // frmHelp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(984, 561);
             this.Controls.Add(this.HelpRichText);
             this.Controls.Add(this.menuStrip1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -74,10 +74,10 @@
             this.MainMenuStrip = this.menuStrip1;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "Help";
+            this.Name = "frmHelp";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Help";
-            this.Load += new System.EventHandler(this.Help_Load);
+            this.Text = "ヘルプ";
+            this.Load += new System.EventHandler(this.frmHelp_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);

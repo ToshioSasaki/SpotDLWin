@@ -1,6 +1,9 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
+using System.Net;
 using System.Runtime.Hosting;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -8,8 +11,14 @@ using TagLib.NonContainer;
 
 namespace MusicDLWin
 {
-    public partial class MusicDL : Form
+    public partial class frmMusicDL : Form
     {
+
+
+        #region "メッセージ表示クラス"
+        private MessageDisplayer messageDisplayer;
+        #endregion
+
         #region"各メンバ"
         /// <summary>
         /// 各メンバプロパティ
@@ -22,9 +31,10 @@ namespace MusicDLWin
         #endregion
 
         #region "コンストラクタ"
-        public MusicDL()
+        public frmMusicDL()
         {
             InitializeComponent();
+            messageDisplayer = new MessageDisplayer(this.ResultText);
         }
         #endregion
 
@@ -46,7 +56,7 @@ namespace MusicDLWin
                 DateTime now = DateTime.Now;
                 string sYmd = now.Year + "/" + now.Month + "/" + now.Day + " ";
                 string sHms = now.Hour + ":" + now.Minute + ":" + now.Second;
-                UpdateRichTextBox("■ダウンロード作業を開始します。(" + sYmd + sHms + ")■");
+                messageDisplayer.UpdateRichTextBox("■ダウンロード作業を開始します。(" + sYmd + sHms + ")■");
 
                 //URLダウンロード
                 string Argument = "spotdl download " + inputTextBox.Text.Trim() + " --max-retries " + this.Kaisuu;
@@ -98,7 +108,7 @@ namespace MusicDLWin
                     process.Dispose();
                     if (stop == false)
                     {
-                        UpdateRichTextBox("プロセスファイルが起動していた為終了させました。");
+                        messageDisplayer.UpdateRichTextBox("プロセスファイルが起動していた為終了させました。");
                     }
                 }
             }
@@ -204,7 +214,7 @@ namespace MusicDLWin
                 }
                 catch (IOException e)
                 {
-                    UpdateRichTextBox($"ローカルファイルを削除できませんでした。削除できなかったファイル: {file}. Error: {e.Message}");
+                    messageDisplayer.UpdateRichTextBox($"ローカルファイルを削除できませんでした。削除できなかったファイル: {file}. Error: {e.Message}");
                 }
             }
         }
@@ -226,7 +236,7 @@ namespace MusicDLWin
                 }
                 catch (IOException e)
                 {
-                    UpdateRichTextBox($"出力先のファイルを削除できませんでした。削除できなかったファイル: {file}. Error: {e.Message}");
+                    messageDisplayer.UpdateRichTextBox($"出力先のファイルを削除できませんでした。削除できなかったファイル: {file}. Error: {e.Message}");
                 }
             }
         }
@@ -247,8 +257,9 @@ namespace MusicDLWin
                     //ディレクトリ変更
                     string selectedFolder = folderBrowserDialog.SelectedPath;
                     textOutDir.Text = selectedFolder;
+                    textOutDir.Text = textOutDir.Text + "\\";
                     //設定ファイルの変更
-                    IniData objIni = new IniData();
+                    clsIniData objIni = new clsIniData();
                     objIni.SetIniData(textOutDir.Text.Trim());
                 }
             }
@@ -355,16 +366,16 @@ namespace MusicDLWin
                 processes.OutputDataReceived += (sender, e) =>
                 {
                     //プロセスコマンドの通常ログ
-                    UpdateRichTextBox(e.Data, true);
+                    messageDisplayer.UpdateRichTextBox(e.Data, true);
                 };
                 processes.ErrorDataReceived += (sender, e) =>
                 {
                     //プロセスコマンドのエラーログイベント
-                    UpdateRichTextBox(e.Data, true);
+                    messageDisplayer.UpdateRichTextBox(e.Data, true);
                 };
 
                 //進行状況の表示
-                UpdateRichTextBox("コマンドの実行を開始しました。", true);
+                messageDisplayer.UpdateRichTextBox("コマンドの実行を開始しました。", true);
                 processes.Start();
                 processes.BeginOutputReadLine();
                 processes.BeginErrorReadLine();
@@ -379,12 +390,12 @@ namespace MusicDLWin
                 if (processes.HasExited)
                 {
                     //プロセスが終了している場合
-                    UpdateRichTextBox("プロセスが終了しました。", true);
+                    messageDisplayer.UpdateRichTextBox("プロセスが終了しました。", true);
                     progressBar1.Value = 0;
                     timer1.Stop();
                 } else if (!isCompleted)
                 {
-                    UpdateRichTextBox("プロセスがタイムアウト時間に達しました。", true);
+                    messageDisplayer.UpdateRichTextBox("プロセスがタイムアウト時間に達しました。", true);
                     progressBar1.Value = 0;
                     timer1.Stop();
                     processes.Kill();
@@ -392,59 +403,11 @@ namespace MusicDLWin
                 else
                 {
                     //プロセスが終了していない場合
-                    UpdateRichTextBox("プロセスがまだ処理中です・・。", true);
+                    messageDisplayer.UpdateRichTextBox("プロセスがまだ処理中です・・。", true);
                 }
             }
-            UpdateRichTextBox("ダウンロードプロセスを全て終了させました。", true);
+            messageDisplayer.UpdateRichTextBox("ダウンロードプロセスを全て終了させました。", true);
             ProcessKills();
-        }
-        #endregion
-
-        #region "リッチテキスト関係"
-        /// <summary>
-        /// スレッドセーフにリッチテキストに表示します
-        /// </summary>
-        /// <param name="text">表示する文字</param>
-        /// <param name="Thread">スレッド時：True</param>
-        private void UpdateRichTextBox(string text, bool Thread = false)
-        {
-            if (text != null)
-            {
-
-                if (Thread)
-                {
-                    try
-                    {
-                        // スレッドセーフな方法でRichTextBoxを更新
-                        Invoke((MethodInvoker)(() =>
-                        {
-                            ResultText.AppendText(text + "\n");
-                            ResultText.ScrollToCaret();
-                        }));
-                    }
-                    catch (Exception ex)
-                    {
-                        UpdateRichText(ex.Message.ToString());
-                    }
-                }
-                else
-                {
-                    //通常のシングルスレッドの場合
-                    UpdateRichText(text);
-                }
-            }
-        }
-
-        /// <summary>
-        /// リッチテキストボックスのシングルスレッドバージョン
-        /// </summary>
-        /// <param name="text">表示する文字列</param>
-        private void UpdateRichText(string text)
-        {
-            //通常のシングルスレッドの場合
-            Application.DoEvents();
-            ResultText.AppendText(text + "\n");
-            ResultText.ScrollToCaret();
         }
         #endregion
 
@@ -455,7 +418,7 @@ namespace MusicDLWin
         private void ReadConfigData()
         {
             //設定ファイルからディレクトリを読込み
-            IniData objIni = new IniData();
+            clsIniData objIni = new clsIniData();
             objIni.GetIniData();
             textOutDir.Text = objIni.getOutPath;
             this.Kaisuu = objIni.getKaisuu;
@@ -474,7 +437,28 @@ namespace MusicDLWin
             progressBar1.Step = 1;
             progressBar1.Enabled = true;
         }
+        #endregion
 
+        #region "SpotDLの一括インストール"
+        /// <summary>
+        /// SpotDLの一括ｲﾝｽﾄｰﾙ
+        /// </summary>
+        private async Task InstallSpotDL()
+        {
+            Application.DoEvents();
+            timer1.Enabled = true;
+            timer1.Start();
+            progressBar1.Value = 0;
+            clsPython python = new clsPython(ResultText);
+            clsFFmpeg ffmpeg = new clsFFmpeg(this.ResultText);
+            clsSpotDl spotdl = new clsSpotDl(this.ResultText);
+            await python.DownloadPythonInstaller();
+            await ffmpeg.DownloadAndInstallFFmpeg();
+            await spotdl.InstallSpotDL();
+            timer1.Stop();
+            progressBar1.Value = 0;
+            timer1.Enabled = false;
+        }
         #endregion
 
         #region "イベント関係"
@@ -497,6 +481,9 @@ namespace MusicDLWin
 
             //タイマーを非活性にセット
             timer1.Enabled = false;
+
+            //RichTextBoxをメッセージプレイヤーにセット
+            MessageDisplayer messageDisplayer = new MessageDisplayer(this.ResultText);
         }
 
         /// <summary>
@@ -540,7 +527,7 @@ namespace MusicDLWin
         /// <param name="e"></param>
         private void ヘルプToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Help help = new Help();
+            frmHelp help = new frmHelp();
             help.ShowDialog();
         }
 
@@ -623,7 +610,7 @@ namespace MusicDLWin
         private void ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //管理者権限かどうかの取得
-            Admin admin = new Admin();
+            clsAdmin admin = new clsAdmin();
             admin.IsAdministrator();
             bool adm = admin.GetAdmin;
             if (adm==false)
@@ -648,7 +635,7 @@ namespace MusicDLWin
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
         {
             //Helpを表示
-            Help help = new Help();
+            frmHelp help = new frmHelp();
             help.ShowDialog();
 
         }
@@ -660,7 +647,7 @@ namespace MusicDLWin
         /// <param name="e"></param>
         private void 試行回数ToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            using (Kaisuu kaisu = new Kaisuu())
+            using (frmKaisuu kaisu = new frmKaisuu())
             {
                 //コンフィグデータの読込み
                 //ReadConfigData();
@@ -686,6 +673,37 @@ namespace MusicDLWin
             {
                 //最新バージョンの更新
                 MusicDLUpdate();
+            }
+        }
+
+        /// <summary>
+        /// SpotDL(ffmpeg、pythonのインストールも行う)のインストール
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void 一括ｲﾝｽﾄｰﾙToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("SpotDLをインストールします。よろしいですか？\nPythonとffmpegのインストールも行います。", "確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+            {
+                
+                clsAdmin admin = new clsAdmin();
+                admin.IsAdministrator();
+                bool adm = admin.GetAdmin;
+
+                //管理者権限かどうかのチェック
+                if (adm == false)
+                {
+                    MessageBox.Show("Phytonとffmpegのインストールは管理者権限で行ってください。\n管理者権限に立ち上げ直して下さい。", "確認", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    //再確認を実施
+                    if (MessageBox.Show("一括インストールはセキュリティリスクを伴いますが実行しますか？\n「復元ポイントの作成」の実施をお勧め致します。", "再確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) == DialogResult.OK)
+                    {
+                        //一括インストール
+                        await this.InstallSpotDL();
+                    }
+                }
             }
         }
     }

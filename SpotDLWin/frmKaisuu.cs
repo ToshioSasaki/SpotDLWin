@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace MusicDLWin
 {
-    public partial class Kaisuu : Form
+    public partial class frmKaisuu : Form
     {
-        public Kaisuu()
+        public frmKaisuu()
         {
             InitializeComponent();
         }
@@ -30,7 +30,7 @@ namespace MusicDLWin
         private void 保存ToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
-            IniData iniData = new IniData();
+            clsIniData iniData = new clsIniData();
             iniData.SetKaisuu(GetKaisuu(textBox1.Text));
             //分をミリ秒に変換
             double dTimeOut = GetTimeOut(textTimeOut.Text) * 60000;

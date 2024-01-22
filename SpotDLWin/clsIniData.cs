@@ -10,7 +10,7 @@ namespace MusicDLWin
     /// <summary>
     /// INIファイルの取得をします。
     /// </summary>
-    public class IniData
+    public class clsIniData
     {
         public string getOutPath { get; set; } = "";
         public int getKaisuu { get; set; } = 0;
@@ -19,7 +19,7 @@ namespace MusicDLWin
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public IniData() {
+        public clsIniData() {
             this.getOutPath = string.Empty;
             this.getTimeOut = 0;
             this.getKaisuu = 0;

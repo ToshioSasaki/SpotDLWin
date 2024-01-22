@@ -12,14 +12,14 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace MusicDLWin
 {
-    public partial class Help : Form
+    public partial class frmHelp : Form
     {
-        public Help()
+        public frmHelp()
         {
             InitializeComponent();
         }
 
-        private void Help_Load(object sender, EventArgs e)
+        private void frmHelp_Load(object sender, EventArgs e)
         {
             HelpRichText.Text = HelpMessage();
         }
@@ -55,6 +55,12 @@ namespace MusicDLWin
             Result += "・随時ファイルメニューより行ってください。\n";
             Result += "※アップデート時には本アプリケーションを管理者権限で立ち上げる必要があります。\n";
             Result += "\n";
+            Result += "■一括インストールについて■\n";
+            Result += "・PythonとffmpegとSpotDLのインストールを本アプリにて自動で行います。\n";
+            Result += "・管理者権限で行ってください。\n";
+            Result += "※インストールによって起こったもしもの不具合等は作成者は如何なる責任を負いません。\n";
+            Result += "※インストール前にWindows機能の「復元ポイントの作成」を実施する事をお勧め致します。\n";
+            Result += "\n";
             Result += "■Phytonのアップデートについて■\n";
             Result += "・Chocolateyを使用します。\n";
             Result += "・ChocolateyをWindows 11にインストールするには、以下の手順を実行します：\n";
@@ -84,7 +90,7 @@ namespace MusicDLWin
             return Result;
         }
 
-        private void 戻るToolStripMenuItem_Click(object sender, EventArgs e)
+        private void 戻るToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
             this.Close();
             this.Dispose();
