@@ -44,7 +44,7 @@ namespace MusicDLWin
         /// </summary>
         private async void WorksFiles()
         {
-
+            this.StartTimerProgresBar();
             //ディレクトリチェック
             if (CheckDIr())
             {
@@ -59,7 +59,7 @@ namespace MusicDLWin
                 messageDisplayer.UpdateRichTextBox("■ダウンロード作業を開始します。(" + sYmd + sHms + ")■");
 
                 //URLダウンロード
-                string Argument = "spotdl download " + inputTextBox.Text.Trim() + " --max-retries " + this.Kaisuu;
+                string Argument = "python -m spotdl download " + inputTextBox.Text.Trim() + " --max-retries " + this.Kaisuu;
                 await ExecuteCommand(Argument);
 
                 //ディレクトリ表示
@@ -78,11 +78,8 @@ namespace MusicDLWin
                 string message = (success) ? "ファイルコピー成功" : "ファイルコピー失敗";
                 Argument = "echo ■ダウンロード終了 " + message + " ファイルアップデート(" + updateMessage + ")" + sYmd + sHms;
                 await ExecuteCommand(Argument);
-
-                //プログレスバーとタイマーを初期状態に戻す
-                progressBar1.Value = 0;
-                timer1.Stop();
             }
+            this.StopTimerProgresBar();
         }
         #endregion
 
@@ -340,6 +337,30 @@ namespace MusicDLWin
         }
         #endregion
 
+        #region "スタート･タイマー＆プログレスバー"
+        /// <summary>
+        /// スタート･タイマー＆プログレスバー
+        /// </summary>
+        private void StartTimerProgresBar()
+        {
+            timer1.Enabled = true;
+            timer1.Start();
+            progressBar1.Value = 0;
+        }
+        #endregion
+
+        #region "ストップ･タイマー＆プログレスバー"
+        /// <summary>
+        /// ストップ･タイマー＆プログレスバー
+        /// </summary>
+        private void StopTimerProgresBar()
+        {
+            timer1.Stop();
+            progressBar1.Value = 0;
+            timer1.Enabled = false;
+        }
+        #endregion
+
         #region "コマンドプロンプト動作処理"
         /// <summary>
         /// その他コマンドの実行
@@ -380,10 +401,6 @@ namespace MusicDLWin
                 processes.BeginOutputReadLine();
                 processes.BeginErrorReadLine();
 
-                //プログレスバータイマー開始
-                timer1.Enabled = true;
-                timer1.Start();
-
                 //プロセスの待機
                 bool isCompleted = await Task.Run(() => processes.WaitForExit(this.TimeOut));
 
@@ -391,13 +408,10 @@ namespace MusicDLWin
                 {
                     //プロセスが終了している場合
                     messageDisplayer.UpdateRichTextBox("プロセスが終了しました。", true);
-                    progressBar1.Value = 0;
-                    timer1.Stop();
+
                 } else if (!isCompleted)
                 {
                     messageDisplayer.UpdateRichTextBox("プロセスがタイムアウト時間に達しました。", true);
-                    progressBar1.Value = 0;
-                    timer1.Stop();
                     processes.Kill();
                 }
                 else
@@ -445,19 +459,13 @@ namespace MusicDLWin
         /// </summary>
         private async Task InstallSpotDL()
         {
-            Application.DoEvents();
-            timer1.Enabled = true;
-            timer1.Start();
-            progressBar1.Value = 0;
-            clsPython python = new clsPython(ResultText);
+
+            clsPython python = new clsPython(this.ResultText);
             clsFFmpeg ffmpeg = new clsFFmpeg(this.ResultText);
             clsSpotDl spotdl = new clsSpotDl(this.ResultText);
             await python.DownloadPythonInstaller();
             await ffmpeg.DownloadAndInstallFFmpeg();
             await spotdl.InstallSpotDL();
-            timer1.Stop();
-            progressBar1.Value = 0;
-            timer1.Enabled = false;
         }
         #endregion
 
@@ -685,7 +693,7 @@ namespace MusicDLWin
         {
             if (MessageBox.Show("SpotDLをインストールします。よろしいですか？\nPythonとffmpegのインストールも行います。", "確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
             {
-                
+                //管理者かどうかの確認
                 clsAdmin admin = new clsAdmin();
                 admin.IsAdministrator();
                 bool adm = admin.GetAdmin;
@@ -701,7 +709,9 @@ namespace MusicDLWin
                     if (MessageBox.Show("一括インストールはセキュリティリスクを伴いますが実行しますか？\n「復元ポイントの作成」の実施をお勧め致します。", "再確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) == DialogResult.OK)
                     {
                         //一括インストール
+                        this.StartTimerProgresBar();
                         await this.InstallSpotDL();
+                        this.StopTimerProgresBar();
                     }
                 }
             }

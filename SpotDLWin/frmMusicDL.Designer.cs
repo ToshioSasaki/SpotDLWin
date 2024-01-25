@@ -39,6 +39,7 @@ namespace MusicDLWin
             this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.musilDLｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.出力先ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.一括ｲﾝｽﾄｰﾙToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.終了ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.アプリを終了しますToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ヘルプToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -57,7 +58,6 @@ namespace MusicDLWin
             this.picturePlayList = new System.Windows.Forms.PictureBox();
             this.pictureLinkAddress = new System.Windows.Forms.PictureBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.一括ｲﾝｽﾄｰﾙToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picturePlayList)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureLinkAddress)).BeginInit();
@@ -104,6 +104,7 @@ namespace MusicDLWin
             // 
             // ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem
             // 
+            this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Enabled = false;
             this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Name = "ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem";
             this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Text = "Phytonｱｯﾌﾟﾃﾞｰﾄ";
@@ -122,6 +123,14 @@ namespace MusicDLWin
             this.出力先ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.出力先ToolStripMenuItem.Text = "出力先";
             this.出力先ToolStripMenuItem.Click += new System.EventHandler(this.出力先ToolStripMenuItem_Click);
+            // 
+            // 一括ｲﾝｽﾄｰﾙToolStripMenuItem
+            // 
+            this.一括ｲﾝｽﾄｰﾙToolStripMenuItem.Enabled = false;
+            this.一括ｲﾝｽﾄｰﾙToolStripMenuItem.Name = "一括ｲﾝｽﾄｰﾙToolStripMenuItem";
+            this.一括ｲﾝｽﾄｰﾙToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.一括ｲﾝｽﾄｰﾙToolStripMenuItem.Text = "一括ｲﾝｽﾄｰﾙ";
+            this.一括ｲﾝｽﾄｰﾙToolStripMenuItem.Click += new System.EventHandler(this.一括ｲﾝｽﾄｰﾙToolStripMenuItem_Click);
             // 
             // 終了ToolStripMenuItem
             // 
@@ -291,13 +300,6 @@ namespace MusicDLWin
             this.pictureBox1.Size = new System.Drawing.Size(152, 28);
             this.pictureBox1.TabIndex = 33;
             this.pictureBox1.TabStop = false;
-            // 
-            // 一括ｲﾝｽﾄｰﾙToolStripMenuItem
-            // 
-            this.一括ｲﾝｽﾄｰﾙToolStripMenuItem.Name = "一括ｲﾝｽﾄｰﾙToolStripMenuItem";
-            this.一括ｲﾝｽﾄｰﾙToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.一括ｲﾝｽﾄｰﾙToolStripMenuItem.Text = "一括ｲﾝｽﾄｰﾙ";
-            this.一括ｲﾝｽﾄｰﾙToolStripMenuItem.Click += new System.EventHandler(this.一括ｲﾝｽﾄｰﾙToolStripMenuItem_Click);
             // 
             // frmMusicDL
             // 

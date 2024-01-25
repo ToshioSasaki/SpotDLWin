@@ -27,22 +27,27 @@ namespace MusicDLWin
         /// <summary>
         /// ffmpegのリンク先
         /// </summary>
-        private readonly string ffmpegUrl = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip";
+        private const string ffmpegUrl = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip";
 
         /// <summary>
         /// ffmpegのダウンロード先
         /// </summary>
-        private readonly string downloadPath = "c:\\temp\\extract\\ffmpeg.zip";
+        private const string ffmepgDownloadPath = "c:\\temp\\extract\\ffmpeg.zip";
 
         /// <summary>
         /// ffmpegの解凍するパス
         /// </summary>
-        private readonly string ffmpegZipPath = "c:\\temp\\extract\\";
+        private const string ffmpegZipPath = "c:\\temp\\extract\\";
         
         /// <summary>
         /// ffmpegのインストール先
         /// </summary>
-        private readonly string ffmpegInstallPath = "C:\\Program Files\\";
+        private const string ffmpegInstallPath = "C:\\Program Files\\";
+
+        /// <summary>
+        /// ffmpegのインストール先ファイル名
+        /// </summary>
+        private const string ffmpegFileName = "ffmpeg";
 
         /// <summary>
         /// frmMusicDLのRickTextBox
@@ -69,13 +74,16 @@ namespace MusicDLWin
         private async Task InstallFFmpeg()
         {
             //既存ffmpegフォルダの削除
-            DeleteFFmpegFolder();
+            this.DeleteFFmpegFolder();
 
             //ダウンロードしたffmpegファイルの解凍
-            await ExtractFfmpeg(downloadPath, ffmpegZipPath);
+            await this.ExtractFfmpeg();
 
             //解凍したファイルをインストールフォルダ先へコピー
-            MoveFFmpegExecutable(ffmpegZipPath, ffmpegInstallPath);
+            this.MoveFFmpegExecutable();
+
+            //環境設定パスの設定
+            this.SetEnvironment();
         }
 
         /// <summary>
@@ -95,7 +103,7 @@ namespace MusicDLWin
             using (WebClient webClient = new WebClient())
             {
                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(this.DownloadFileCompletedCallback);
-                webClient.DownloadFileAsync(new Uri(ffmpegUrl), downloadPath);
+                webClient.DownloadFileAsync(new Uri(ffmpegUrl), ffmepgDownloadPath);
             }
         }
 
@@ -125,21 +133,22 @@ namespace MusicDLWin
         /// <returns>メッセージ</returns>
         private string DeleteFFmpegFolder()
         {
+            
             string message = "";
             // フォルダが存在するかチェック
-            if (Directory.Exists(ffmpegInstallPath))
+            if (Directory.Exists(ffmpegInstallPath + ffmpegFileName))
             {
                 try
                 {
                     // フォルダを削除:true=サブディレクトリも削除する。
-                    messageDisplayer.UpdateRichTextBox("ffmpegフォルダを削除します。");
+                    messageDisplayer.UpdateRichTextBox(ffmpegInstallPath + ffmpegFileName + "フォルダを削除します。");
                     clsFileFolder clsFile = new clsFileFolder();
-                    clsFile.DeleteFolderContents(ffmpegInstallPath);
+                    clsFile.DeleteFolderContents(ffmpegInstallPath + ffmpegFileName);
                     messageDisplayer.UpdateRichTextBox("ffmpegが即に存在するので削除しました。");
                 }
-                catch (IOException e)
+                catch (Exception e)
                 {
-                    messageDisplayer.UpdateRichTextBox("エラーが発生しました: {e.Message}");
+                    messageDisplayer.UpdateRichTextBox("エラーが発生しました: " + e.Message);
                 }
             }
             else
@@ -154,27 +163,37 @@ namespace MusicDLWin
         /// </summary>
         /// <param name="zipPath">Zipファイルの場所</param>
         /// <param name="extractPath">解凍後のパス</param>
-        private async Task ExtractFfmpeg(string zipPath, string extractPath)
+        private async Task ExtractFfmpeg()
         {
             Application.DoEvents();
-            if (!Directory.Exists(extractPath))
+            if (!Directory.Exists(ffmpegZipPath))
             {
-                messageDisplayer.UpdateRichTextBox(extractPath + "にffmpegフォルダを作成しました。");
-                Directory.CreateDirectory(extractPath);
+                messageDisplayer.UpdateRichTextBox(ffmpegZipPath + "にffmpegフォルダを作成しました。",true);
+                Directory.CreateDirectory(ffmpegZipPath);
             }
-            messageDisplayer.UpdateRichTextBox("■FFmpeg解凍処理中・・■");
-            messageDisplayer.UpdateRichTextBox(zipPath + "を" + extractPath + "ヘ解凍します。");
+            messageDisplayer.UpdateRichTextBox("■FFmpeg解凍処理中・・■",true);
+            messageDisplayer.UpdateRichTextBox(ffmepgDownloadPath + "を" + ffmpegZipPath + "ヘ解凍します。", true);
             try
             {
-                ZipFile.ExtractToDirectory(zipPath, extractPath);
-                messageDisplayer.UpdateRichTextBox(zipPath + "を" + extractPath + "ヘ解凍しました。");
+                //解凍フォルダが即に存在しているか確認
+                clsFileFolder file = new clsFileFolder();
+                string extractFullPath = file.GetFindDirectory(ffmpegZipPath, "ffmpeg");
+                if (extractFullPath != null)
+                {
+                    messageDisplayer.UpdateRichTextBox(extractFullPath + "フォルダを削除します。。", true);
+                    //解凍フォルダが既に存在していれば削除
+                    Directory.Delete(extractFullPath);
+                }
+                //解凍処理
+                ZipFile.ExtractToDirectory(ffmepgDownloadPath, ffmpegZipPath);
+                messageDisplayer.UpdateRichTextBox(ffmepgDownloadPath + "を" + ffmpegZipPath + "ヘ解凍しました。", true);
             }
             catch (Exception e)
             {
-                messageDisplayer.UpdateRichTextBox("解凍中にエラーが発生しました。\n" + e.Message.ToString());
+                messageDisplayer.UpdateRichTextBox("解凍中にエラーが発生しました。\n" + e.Message.ToString(), true);
             }finally
             {
-                messageDisplayer.UpdateRichTextBox("■FFmpeg解凍処理終了■");
+                messageDisplayer.UpdateRichTextBox("■FFmpeg解凍処理終了■", true);
             }
         }
 
@@ -183,12 +202,27 @@ namespace MusicDLWin
         /// </summary>
         /// <param name="sourcePath"></param>
         /// <param name="destinationPath"></param>
-        private void MoveFFmpegExecutable(string sourcePath, string destinationPath)
+        private void MoveFFmpegExecutable()
         {
-            var sourceFile = Path.Combine(sourcePath, "ffmpeg.exe");
-            var destinationFile = Path.Combine(destinationPath, "ffmpeg.exe");
-            clsFileFolder clsFile = new clsFileFolder();
-            clsFile.MoveFolder(sourceFile, destinationFile);
+            //インストール先パス
+            var destinationFile = ffmpegInstallPath + ffmpegFileName;
+            //解凍先パスのフルパスを取得
+            clsFileFolder file = new clsFileFolder();
+            string extractFullPath = file.GetFindDirectory(ffmpegZipPath, "ffmpeg");
+            //ディレクトリの移動
+            file.MoveFolder(extractFullPath, destinationFile);
+            messageDisplayer.UpdateRichTextBox("■FFmpeg：" + extractFullPath + "→" + destinationFile + "へコピー処理終了■");
+        }
+
+        /// <summary>
+        /// 環境パスの設定
+        /// </summary>
+        private void SetEnvironment()
+        {
+            // 環境変数を更新 (Pythonのインストールパスを追加)
+            clsFileFolder file = new clsFileFolder();
+            file.SetEnvironment(ffmpegInstallPath + @"\" + ffmpegFileName + @"\bin");
+            messageDisplayer.UpdateRichTextBox("■FFmpeg環境パス設定終了・FFmpegの全ての作業が終了しました。■");
         }
         #endregion
 

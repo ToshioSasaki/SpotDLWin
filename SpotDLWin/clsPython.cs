@@ -29,17 +29,17 @@ namespace MusicDLWin
         /// <summary>
         /// Pythonのダウンロード先
         /// </summary>
-        private readonly string PythonDownloadPath = "C:\\temp\\extract\\";
+        private const string PythonDownloadPath = "C:\\temp\\extract\\";
 
         /// <summary>
         /// Pythonのファイル名
         /// </summary>
-        private readonly string PythonFileName = "python-3.9.0.exe";
+        private const string PythonFileName = "python-3.9.0.exe";
 
         /// <summary>
         /// PythonのURL先
         /// </summary>
-        private readonly string PythonInstallerUrl = "https://www.python.org/ftp/python/3.9.0/python-3.9.0.exe";
+        private const string PythonInstallerUrl = "https://www.python.org/ftp/python/3.12.1/python-3.12.1-amd64.exe";
 
 
         #region"pythonのダウンロードとインストール"
@@ -63,6 +63,7 @@ namespace MusicDLWin
         /// </summary>
         private async Task InstallPython()
         {
+            //インストールStartInfoインスタンス準備
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
                 FileName = PythonDownloadPath + PythonFileName,
@@ -70,6 +71,7 @@ namespace MusicDLWin
                 UseShellExecute = false
             };
 
+            //プロセスからインストーラー起動
             using (Process proc = Process.Start(startInfo))
             {
                 // インストーラーの完了を待機
@@ -79,6 +81,10 @@ namespace MusicDLWin
                 await Task.Run(() => proc.WaitForExit());
                 messageDisplayer.UpdateRichTextBox("Pythonのインストールが完了しました。", true);
             }
+
+            //環境パスのセット
+            //this.SetPythonPath();
+
         }
 
         /// <summary>
@@ -98,6 +104,29 @@ namespace MusicDLWin
                 // エラーハンドリング
                 messageDisplayer.UpdateRichTextBox("ダウンロード中にエラーが発生しました: " + e.Error.Message, true);
             }
+        }
+
+        /// <summary>
+        /// 環境Pythonパスのセット
+        /// </summary>
+        private void SetPythonPath()
+        {
+            // インストールされたパイソンパスを探す
+
+            // パイソンのインストール先パス
+            var PythonPath = @"C:\Program Files (x86)";
+            // Pythonのインストール名
+            var Python = "Python";
+
+            clsFileFolder file = new clsFileFolder();
+            //現在インストールされているPythonのパスを取得する
+            var PythonFullPath = file.GetFindDirectory(PythonPath, Python);
+            // Pythonのインストール先ディレクトリを「Python」に変更する
+            file.RenewDirectory(PythonFullPath, PythonPath + @"\" + Python);
+
+            // 環境変数を更新 (Pythonのインストールパスを追加)
+            file.SetEnvironment(PythonPath + @"\" + Python);
+            messageDisplayer.UpdateRichTextBox("Pythonの環境パスを設定しました。");
         }
 
         #endregion

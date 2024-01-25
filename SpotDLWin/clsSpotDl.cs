@@ -29,10 +29,10 @@ namespace MusicDLWin
         /// <returns></returns>
         public async Task InstallSpotDL()
         {
-            ProcessStartInfo startInfo = new ProcessStartInfo
+            ProcessStartInfo startInfo = new ProcessStartInfo()
             {
                 FileName = "cmd.exe",
-                Arguments = "/c pip install spotdl",
+                Arguments = "/c python -m pip install spotdl",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
@@ -53,6 +53,14 @@ namespace MusicDLWin
                 await Task.Run(() => process.WaitForExit());
                 messageDisplayer.UpdateRichTextBox("spotDLのインストールが完了しました。", true);
             }
+        }
+
+        private void SetEnvironment()
+        {
+            // 環境変数を更新 (ffmpegのインストールパスを追加)
+            //var path = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine);
+            //Environment.SetEnvironmentVariable("Path", path + ";" + ffmpegInstallPath + @"\" + ffmpegFileName + @"\bin\", EnvironmentVariableTarget.Machine);
+            //messageDisplayer.UpdateRichTextBox("■FFmpeg環境パス設定終了・FFmpegの全ての作業が終了しました。■");
         }
         #endregion
 
