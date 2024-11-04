@@ -13,7 +13,7 @@
 <h2>インストールについて</h2>
 <br>
 <strong>※zip形式で圧縮されていますので解凍してください。</strong>
-<br>[SpotDLWin.zip](https://github.com/ToshiharusSasaki/SpotDLWin/MusicDL.zip)
+<br>[SpotDLWin.zip](https://github.com/ToshioSasaki/SpotDLWin/blob/master/MusicDL.zip)
 
 
 
