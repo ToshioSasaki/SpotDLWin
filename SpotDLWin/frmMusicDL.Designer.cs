@@ -104,7 +104,6 @@ namespace MusicDLWin
             // 
             // ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem
             // 
-            this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Enabled = false;
             this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Name = "ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem";
             this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Text = "Phytonｱｯﾌﾟﾃﾞｰﾄ";
