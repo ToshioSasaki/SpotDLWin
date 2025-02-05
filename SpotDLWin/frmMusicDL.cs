@@ -68,7 +68,9 @@ namespace MusicDLWin
                 //ディレクトリ表示
                 int iDirctory = textOutDir.Text.Trim().LastIndexOf("\\");
                 string Directory = textOutDir.Text.Trim().Substring(0, iDirctory);
-                Argument = "cd " + Directory + " && " + "cd " + textOutDir.Text.Trim() + " && dir *.mp3 /O-D";
+                Argument = "cd " + Directory;
+                await ExecuteCommand(Argument);
+                Argument = "dir *.mp3";
                 await ExecuteCommand(Argument);
 
                 //終了ステートメント
@@ -79,8 +81,8 @@ namespace MusicDLWin
                 sYmd = now.Year + "/" + now.Month + "/" + now.Day + " ";
                 sHms = now.Hour + ":" + now.Minute + ":" + now.Second;
                 string message = (success) ? "ファイルコピー成功" : "ファイルコピー失敗";
-                Argument = "echo ■ダウンロード終了 " + message + " ファイルアップデート(" + updateMessage + ")" + sYmd + sHms;
-                await ExecuteCommand(Argument);
+                Argument = "■ダウンロード終了 " + message + " ファイルアップデート(" + updateMessage + ")" + sYmd + sHms;
+                messageDisplayer.UpdateRichTextBox(Argument);
             }
             this.StopTimerProgresBar();
         }
@@ -504,7 +506,13 @@ namespace MusicDLWin
                 processes.OutputDataReceived += (sender, e) =>
                 {
                     //プロセスコマンドの通常ログ
-                    messageDisplayer.UpdateRichTextBox(e.Data, true);
+                    if (string.IsNullOrEmpty(e.Data) == false) {
+                        string message = e.Data.Contains("youtube") || e.Data.Contains("Skipping") ? "" : e.Data.ToString();
+                        if (message != "")
+                        {
+                            messageDisplayer.UpdateRichTextBox(message, true);
+                        }
+                    }
                 };
                 processes.ErrorDataReceived += (sender, e) =>
                 {
