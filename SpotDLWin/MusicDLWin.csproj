@@ -8,10 +8,11 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>MusicDLWin</RootNamespace>
     <AssemblyName>MusicDLWin</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -72,8 +73,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="clsProgressBarDisplay.cs" />
     <Compile Include="clsAdmin.cs" />
-    <Compile Include="clsFFmpeg.cs" />
+    <Compile Include="clsInstall.cs" />
     <Compile Include="clsFileFolder.cs" />
     <Compile Include="clsMessageDisPlayer.cs" />
     <Compile Include="clsPython.cs" />

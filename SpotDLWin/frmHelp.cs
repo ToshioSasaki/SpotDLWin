@@ -4,7 +4,9 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -21,73 +23,35 @@ namespace MusicDLWin
 
         private void frmHelp_Load(object sender, EventArgs e)
         {
-            HelpRichText.Text = HelpMessage();
+            HelpRichText.Text = GetHelpMessage();
+        }
+
+        public string GetHelpMessage()
+        {
+            byte[] fullData = Convert.FromBase64String(HelpMessage());
+            byte[] key = Encoding.UTF8.GetBytes("ThisIsA16ByteKey"); // 暗号化時と同じキー
+            byte[] iv = new byte[16];
+            Array.Copy(fullData, 0, iv, 0, 16);
+            byte[] cipherText = new byte[fullData.Length - 16];
+            Array.Copy(fullData, 16, cipherText, 0, cipherText.Length);
+
+            using (Aes aes = Aes.Create())
+            {
+                aes.Key = key;
+                aes.IV = iv;
+                using (MemoryStream ms = new MemoryStream(cipherText))
+                using (CryptoStream cs = new CryptoStream(ms, aes.CreateDecryptor(), CryptoStreamMode.Read))
+                using (StreamReader sr = new StreamReader(cs))
+                {
+                    return sr.ReadToEnd();
+                }
+            }
         }
 
         private string HelpMessage()
         {
-            string Result = "";
-            Result += "■GitHub上のSpotDLのWindowsGUI版です。■\n";
-            Result += "・使い方・セットアップ等の詳細はSpotDL欄を参照してください。\n";
-            Result += "※使用には予めPython・FFmpegのセットアップが必須になります。\n";
-            Result += "\n";
-            Result += "■セットアップ手順以下参照■\n";
-            Result += "・https://github.com/spotDL/spotify-downloadern\n";
-            Result += "・https://self-development.info/%E3%80%90%E7%84%A1%E6%96%99%E3%83%BB%E5%AE%89%E5%85%A8%E3%80%91spotify%E3%81%AE%E9%9F%B3%E6%A5%BD%E3%82%92%E3%83%80%E3%82%A6%E3%83%B3%E3%83%AD%E3%83%BC%E3%83%89%E3%81%99%E3%82%8B%E6%96%B9%E6%B3%95/\n";
-            Result += "※著作権等もありますので使用はご自身の目的と判断とご自身の範囲内だけでお願い致します。\n";
-            Result += "※ダウンロードファイルを販売等の目的で使わないようにお願いします。\n";
-            Result += "\n";
-            Result += "■このプログラムについて・規約等について■\n";
-            Result += "※このプログラム及びSpotDLを使ったトラブル等は一切法的な措置等は関与致しません。\n";
-            Result += "・本GitHub上のプログラムからブランチを切っての改造は許可いたしますがコピーでの改編や改造は許可いたしません。\n";
-            Result += "\n";
-            Result += "■使い方など■\n";
-            Result += "・プレイリストを入力するとMP3のアルバム名称が自動で入力されます。\n";
-            Result += "・MP3のプロパティのトラックNoがダウンロード順に自動で設定されます。\n";
-            Result += "・上記2点の内容によりitunesにドラッグすると１つのアルバムとして管理しやすくなると思います。\n";
-            Result += "・ダウンロード曲数が多すぎると再リトライが何度もかかり始めダウンロードが開始されなくなります。\n";
-            Result += "・設定より再リトライ回数が設定できますのでダウンロードに時間がかかる場合は値を小さくしてください。1が最小です。\n";
-            Result += "\n";
-            Result += "･タイムアウト回数について。タイムアウトを1分～10分設定できます。\n";
-            Result += "･所定の時間にダウンロードできないものはダウンロードを強制的に終了します。\n";
-            Result += "\n";
-            Result += "■アップデートについて■\n";
-            Result += "・随時ファイルメニューより行ってください。\n";
-            Result += "※アップデート時には本アプリケーションを管理者権限で立ち上げる必要があります。\n";
-            Result += "\n";
-            Result += "■一括インストールについて■\n";
-            Result += "・PythonとffmpegとSpotDLのインストールを本アプリにて自動で行います。\n";
-            Result += "・管理者権限で行ってください。\n";
-            Result += "※インストールによって起こったもしもの不具合等は作成者は如何なる責任を負いません。\n";
-            Result += "※インストール前にWindows機能の「復元ポイントの作成」を実施する事をお勧め致します。\n";
-            Result += "\n";
-            Result += "■Phytonのアップデートについて■\n";
-            Result += "・Chocolateyを使用します。\n";
-            Result += "・ChocolateyをWindows 11にインストールするには、以下の手順を実行します：\n";
-            Result += "\n";
-            Result += "・PowerShellを管理者権限で開く:\n";
-            Result += "\n";
-            Result += "・Windows + R キーを押して「Run」を開き、「PowerShell」と入力して Ctrl+Shift + Enter を押して管理者権限でPowerShellを開きます。\n";
-            Result += "・または、スタートメニューを右クリックして「Terminal(Admin)」オプションを選択します。\n";
-            Result += "・実行ポリシーの確認:\n";
-            Result += "\n";
-            Result += "・PowerShellで Get-ExecutionPolicy コマンドを実行して実行ポリシーの状態を確認します。\n";
-            Result += "・もし「Restricted」と表示された場合は、Set - ExecutionPolicy AllSigned または Set - ExecutionPolicy Bypass - Scope Process コマンドを実行してポリシーを変更します。\n";
-            Result += "・Chocolateyのインストールコマンドの実行:\n";
-            Result += "\n";
-            Result += "・以下のコマンドをPowerShellにコピー＆ペーストして実行します：\n";
-            Result += "less\n";
-            Result += "Copy code\n";
-            Result += "Set - ExecutionPolicy Bypass - Scope Process - Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol - bor 3072; iex((New - Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))\n";
-            Result += "・このコマンドは、Chocolateyのインストールスクリプトをダウンロードして実行します。インストールが完了すると、Chocolateyが使用可能になります。\n";
-            Result += "・Chocolateyの使用:\n";
-            Result += "\n";
-            Result += "・インストールが完了したら、choco または choco -? コマンドを入力して、Chocolateyの使用を開始できます。\n";
-            Result += "\n";
-            Result += "■その他■\n";
-            Result += "　Copyright © 2024-1. All rights reserved. Toshiharu Sasaki \n";
-            Result += "  How to Reference SpotDL https://github.com/spotDL/spotify-downloadern \n";
-            return Result;
+            string EncryptedHelpMessage = @"7PQ7JrewnKpu50ur42wg7oY1cCr8wkWrRsrZXSrNxW6gX8mZR1Y39h1TwKH1PEpPxNNBBrHeFqYGzFffo1pklbtGHFRP1fl9Vat/wCQz9wCjbRKDGe+YL9vfy3I0R0cl6lOCnWhUH7XxFmNSFv+OSdiM4+gwA0fatv0btWGbWedd+zQm2WbU9bhCc0Yxr6p+/le19tdfqXU1+YQkHeQD3RooTql8UJuw4+v9QW21Qow3bRUdeUG1V/o8lBsld9b0hdzoc+gqxhodrLatFqrTvyN5RCtAdEVlb7n08X67x1DiYgw2FFHg87ANAeoSBdsLMAziioNsD+Kqbc9WRFC1fhJkh0IygvVRRChkAcgBxsRd38W9t8AlBcDd8UM38NIVjoYy0lgDqHkqfzxDiksfe+XXDv52faNItvr94WimzULPI4/xdANw44BN+ZOhMzOp3+J/r1ol2ObGcxfzvCi/fPTLd6d2hVIRqLWWGddQT1dLljJUOURx5MORHVCAY2IZBsji2iiJ5iQTn+b0XxQt2uIiJv9rqaKrjsxwKUHHl3KljfITQUgEC7DzRfyVcxc8EDJAJyqIXNk9+3tHLbznM3TkIK08oN4zsbAj1FtTqjR5rZhKrff9+zxzENLHg+NP1D+ErFpq8A/8jgFzgc9oxkUs3iup3hK1xqRZ4sH0cKVuSVcw7ulNwCgKr7geVA8TNSzKFT1GWMcpHJiyy+ohl2EaFjY8md+nt75s5CzwHtcJuFXWC1Yu00CEdD+fLSPbTic/6B3AP47d82XvHST30vj2FuutGigHKu1hipRQm8XngppOxaajul6FhPNmzhsgBJMufZ4LDZxN7kI1YE8ewRt722/Pv5dI9paCLcc9RWOfKK3MMQYVv8N5Oi9bq17ZcBLGtllFEWYi6G7QS+TybmLaW1ELPSdQeMguAGaBOWXZn0y/ggLq32GbLgTK4Lvm9ypDxBhCnc/2aZ+paLUdxUqI6mxDjCuhqSn3HmtOjksHAK3A8C1huzXAkkxv3hKUBhZ058/39JAzzNf8spqmRuRm/OmJZXfPebugq8aP8pQ5w88bIIs1zrR/aLHMaklhmQr1PvngqTadsGtGCSQSDg2S4lZiFOiZNPQIqa753JwEEy4aFrHTYSVJDEjPBqrd74vT/c4iUp7certzeApCyhT41pA9ZcjhBsAfc/FKkI/TAUTe8yHqk+cpPJhRF0s8gUaRhTpN7VIianAJPQ0QgqHVnfBqn8Oy2pLk2O6yug55RG4BVpFjt2CXLe203a8JZl6zOBbTliaDgJyfP+C3vRpvX71tKkuUTu91BzNp4Devwvbkjv2yWtl/mMUASgU0hXzP5U5YEY1qqLQxQYPQyzG2fCmDzq3AlCBdrQetCs905x/sVpBScB/gEYG3RZAbWIKTKkPqnztHMdyH7kj4WG8OKwD7K2uRIJXDfLYAAObXbCOTYmIqwENjDHlSbO1XtykISUiyQ4ygwur43Cdwq4276czcBZQ8KlSkhrZuTnPeA07KMjX2rqoWaDzdaxnbeIUuUNHNZjJOXk1T4UXk7jg3QU3mCCxmyY10aMq7mu569DizEHlyOlPUHzt0//MAgXyy8SgdjXUCMniTQ0aQlfo3KYUDuSuQIxcConwYywwJQGmBuxVwVDet7erTg4tBtee3thGAO8cFm5ZDpgaRJAKYg/CTU3nImAH14cY8nSGryCJTbQFZcnhYXjmGD1KiaqbUBmUvfdQIIwSvmCZtMlyOwBTzulxWkB2sBQtfJ2oLyOONlakVZkztR0bdeoQ2f4B2spbYabF9K7oyfzV4mj/MUxX8kPUtzG5oWabtk9Q3Lk8KFJ5AbQf1OUGauA74kMrXyKhZBYcmqag3JtLfZnBzn5c94rzQjczSdx2tJHdQ7yE6jomNUSd7ty4tIRSRIfmvB//zblMgzDbjJ4ra6emcFe5TuJhcJ6WatLH2bl+QBO0TD4pcwWzpkhgGz0V0LGP1F58jbR0wXda460n/J07aZqT17K1Sw0SZqyHZyRt6VIgtJWUFjRsDrDK/Tq+7hdvG7M7NBSoVCHXdq943YUv6E+Wf1o8uKt86rUplBWOezuJMs8INga3C21CzzLXjL/7yEQVfF86UzRAuq6kaNJZoOzij7PsFVF1/OJERjuB8cpqh+h+lKcsDtFh7bmeRxCA1s2RuYPaJ9617D1TTxXyjUQA3Ug8F0pmXEiX5LnfEOoyt/ROxlAAOJ/LXdPoVNstEil4YFLzGoBVHpwA//jOzb5dAW1NWaUWebyDx8Bz9sQ6vSxLEs0t971Sm0AZ6u30JmLcQFg6trp6FIBQwGjOPgIzny0l6D5EaGcfqvgeVk6kDSs4IOxUJLslsSDN9pa1D1grPIISlzqYwUKLdSCm7GGL9XWn4eQF1x5cVR1PiJ5Va074twwOHSnXLlVbtdvPw5QEdCcv44dRF5b2vl+3eXwRp13dYkdJ9xFnvvD/BGH+fj24r33vYsFcC4qwDkaV7jx50Khp8lgKjKXNW7YhleZI8yK/c/UK0UPZ9/Na3QPQaJnyxL2rF3fpmOwbl9mYaXfGJc4rvYBiyBuWS0sUG2P9b0Jbafi62swMZ3u+wpVfZ5+H4w+dTRZ3HMPnXrnbTm6iMJiGSgqee5i27iz3J3TB4E6O5Pvw7XxY3TcAep+brugEbisQOP725AkB/sdSRboZRj+wyUa3RQ32HhxJbN6t/ZTvWKjS/gbJknrbFLd+ojU15zOukq4Efj16gNdLX0gHOxe+7TaTy15dzNIbejF2knIzMgzC5/No9rmapYk21mKexXEgDtu3eUwiLX9Ui1GCBkd2Oukou1+dGIaMJBuesM1wfF3jFaVIrN4ylf1mkBrgsqGsHVV9kakEJehQW6CDqlmAY1GbtwOh0X6mAFpb7Em9WrTAqg+PmRtdIiQylsplXukejMM8ffeQOr2cx1+SbrbsUQbb6CRG2haIJzEnRh08XS6dpimaa0DrjBcdVsP7P2WFWxlIU4SGZ6fafi5nQ47ALdUViKaBHHgBbjwQ4dQEyqMnjahWSvReHNtptHCFY0HlsDO0qiwvzqELooqV2zNMTh827fCOlcfHtao/dJW4piwf02VL0Lvf9v3o9zY7urdSnmcPBVwb+1ylpgRurw3S3qVVrBu4n4iSxPxrfzNbSZ31RZgpLTvd/1xF3CKenAZQgl2HajjvuXElxfMdd7yjeUvAqYr82VQMW2GPqfHhdyywLt4Z455seWHGLhmB57CUGCJlHObj7Xlc9zPrnfbXRCAkBPYr8jnv/jb7rDYZmTPViwajaeApMEmNp5cnar+egeSp4uzLO4ziLUHp4VEjjiABbXf/M6oU63FdHC0mjQKFv0rvKgFHr2fZvymVwYmtGTVBCgLbV1n3io4OZ7qyW1X8d25W2tg==";
+            return EncryptedHelpMessage;
         }
 
         private void 戻るToolStripMenuItem_Click_1(object sender, EventArgs e)

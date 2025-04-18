@@ -205,7 +205,7 @@ namespace MusicDLWin
             }
 
             // SpotDL のアップデートコマンド
-            string updateCommand = "pip install --upgrade spotdl";
+            string updateCommand = "pip upgrade spotdl";
             await ExecuteCommand(updateCommand);
         }
 
@@ -216,8 +216,8 @@ namespace MusicDLWin
         private async Task<bool> IsSpotDLInstalled()
         {
             // SpotDL がインストールされているかを確認するために `pip show spotdl` を実行
-            string checkCommand = "pip show spotdl";
-            bool isInstalled = false;
+            string checkCommand = "pip install spotdl";
+            bool isInstalled = true;
 
             ProcessStartInfo processStartInfos = new ProcessStartInfo("cmd.exe", "/c " + checkCommand)
             {
@@ -234,7 +234,7 @@ namespace MusicDLWin
                 {
                     if (!string.IsNullOrEmpty(e.Data))
                     {
-                        isInstalled = true; // 出力があれば SpotDL がインストールされていると判断
+                        isInstalled = false; // 出力があれば SpotDL がインストールされていると判断
                     }
                 };
                 processes.Start();
@@ -582,15 +582,21 @@ namespace MusicDLWin
         /// <summary>
         /// SpotDLの一括ｲﾝｽﾄｰﾙ
         /// </summary>
-        private async Task InstallSpotDL()
+        private void InstallSpotDL()
         {
-
-            clsPython python = new clsPython(this.ResultText);
-            clsFFmpeg ffmpeg = new clsFFmpeg(this.ResultText);
-            clsSpotDl spotdl = new clsSpotDl(this.ResultText);
-            await python.DownloadPythonInstaller();
-            await ffmpeg.DownloadAndInstallFFmpeg();
-            await spotdl.InstallSpotDL();
+            Application.DoEvents();
+            clsInstall install = new clsInstall(this.ResultText,this.progressBar1);
+            bool okngPython = install.InstallPython();
+            if (okngPython)
+            {
+                messageDisplayer.UpdateRichTextBox("Pythonのインストールが完了しました。");
+            }
+            bool okngFFmpeg = install.InstallFFmpeg();
+            if (okngFFmpeg)
+            {
+                messageDisplayer.UpdateRichTextBox("FFmpegのインストールが完了しました。");
+            }
+            install.Dispose();
         }
         #endregion
 
@@ -950,9 +956,8 @@ namespace MusicDLWin
                     if (MessageBox.Show("一括インストールはセキュリティリスクを伴いますが実行しますか？\n「復元ポイントの作成」の実施をお勧め致します。", "再確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) == DialogResult.OK)
                     {
                         //一括インストール
-                        this.StartTimerProgresBar();
-                        await this.InstallSpotDL();
-                        this.StopTimerProgresBar();
+                        this.SetProgressBar();
+                        this.InstallSpotDL();
                     }
                 }
             }
