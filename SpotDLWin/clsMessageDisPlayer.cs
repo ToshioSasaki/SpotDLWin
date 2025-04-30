@@ -63,10 +63,15 @@ namespace MusicDLWin
         /// <param name="Message">表示する文字列</param>
         public void UpdateRichTextBox(string Message)
         {
-            //通常のシングルスレッドの場合
-            Application.DoEvents();
-            RichTextBox.AppendText(Message + "\n");
-            RichTextBox.ScrollToCaret();
+            if (RichTextBox.InvokeRequired)
+            {
+                RichTextBox.Invoke(new Action<string>(UpdateRichTextBox), Message);
+            }
+            else
+            {
+                RichTextBox.AppendText(Message + "\n");
+                RichTextBox.ScrollToCaret();
+            }
         }
     }
 }
