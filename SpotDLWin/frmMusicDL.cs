@@ -26,21 +26,47 @@ namespace MusicDLWin
         /// <summary>
         /// 各メンバプロパティ
         /// </summary>
-        ProcessStartInfo processStartInfo { get; set; } = null;
         ProgressBar progressBar { get; set; } = new ProgressBar();
-        private Process process { get; set; } = null;
         private int Kaisuu { get; set; }
         private int TimeOut { get; set; }
-        private bool stop { get; set; } = false;
         #endregion
 
         #region "コンストラクタ"
         public frmMusicDL()
         {
             InitializeComponent();
+            SetProgressBar();
+            ReadConfigData();
             messageDisplayer = new MessageDisplayer(this.ResultText);
         }
         #endregion
+
+        /// <summary>
+        /// プログレスバーの初期化
+        /// </summary>
+        private void SetProgressBar()
+        {
+            progressBar = this.progressBar1;
+            progressBar.Minimum = 0;
+            progressBar.Maximum = 100;
+            progressBar.Step = 10;
+            progressBar.Value = 0;
+            progressBar.Visible = true;
+        }
+
+        /// <summary>
+        /// コンフィグデータ読込み
+        /// </summary>
+        private void ReadConfigData()
+        {
+            //コンフィグデータの読込み
+            clsIniData objIni = new clsIniData();
+            objIni.GetIniData();
+            this.Kaisuu = objIni.getKaisuu;
+            this.TimeOut = objIni.getTimeOut;
+            textAlbumName.Text = "";
+            textOutDir.Text = objIni.getOutPath;
+        }
 
         #region "起動しているプロセスの強制終了"
         /// <summary>
@@ -69,90 +95,6 @@ namespace MusicDLWin
                     }
                 }
             }
-        }
-        #endregion
-
-        #region "文字化け対策"
-        /// <summary>
-        /// SpotDLからのタイトル名取得時のPythonの文字化けエラーを防ぐ
-        /// </summary>
-        /// <returns></returns>
-        private void SetCodePageToUTF8()
-        {
-            ProcessStartInfo processStartInfos = new ProcessStartInfo("cmd.exe", "/c chcp 65001")
-            {
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
-            using (Process processes = new Process())
-            {
-                processes.StartInfo = processStartInfos;
-
-                processes.OutputDataReceived += (sender, e) =>
-                {
-                    if (!string.IsNullOrEmpty(e.Data))
-                    {
-                        // コードページ変更の出力をキャプチャする場合、ここで処理
-                        Console.WriteLine(e.Data);
-                    }
-                };
-
-                processes.ErrorDataReceived += (sender, e) =>
-                {
-                    if (!string.IsNullOrEmpty(e.Data))
-                    {
-                        // エラーメッセージを表示
-                        messageDisplayer.UpdateRichTextBox("Error: " + e.Data);
-                    }
-                };
-
-                processes.Start();
-                processes.BeginOutputReadLine();
-                processes.BeginErrorReadLine();
-
-                processes.WaitForExit();
-            }
-        }
-        #endregion
-
-        #region
-        /// <summary>
-        /// SpotDLのインストールを実施するか否か
-        /// </summary>
-        /// <returns>True：実施する</returns>
-        private async Task<bool> IsSpotDLInstalled()
-        {
-            // SpotDL がインストールされているかを確認するために `pip show spotdl` を実行
-            string checkCommand = "pip install spotdl";
-            bool isInstalled = true;
-
-            ProcessStartInfo processStartInfos = new ProcessStartInfo("cmd.exe", "/c " + checkCommand)
-            {
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
-            using (Process processes = new Process())
-            {
-                processes.StartInfo = processStartInfos;
-                processes.OutputDataReceived += (sender, e) =>
-                {
-                    if (!string.IsNullOrEmpty(e.Data))
-                    {
-                        isInstalled = false; // 出力があれば SpotDL がインストールされていると判断
-                    }
-                };
-                processes.Start();
-                processes.BeginOutputReadLine();
-                await Task.Run(() => processes.WaitForExit());
-            }
-
-            return isInstalled;
         }
         #endregion
 
@@ -256,47 +198,6 @@ namespace MusicDLWin
         }
         #endregion
 
-        #region "ファイルコピー処理"
-        /// <summary>
-        /// OUTPUT_DIRにMP3ファイルをコピーします。
-        /// </summary>
-        /// <returns>True:成功、False：失敗</returns>
-        private bool CopyMp3File()
-        {
-            string AppPath = Application.StartupPath + "\\";
-            //コピー先フォルダ
-            string destinationFolder = textOutDir.Text.Trim();
-            //コピー先フォルダの削除
-
-            try
-            {
-                if (Directory.Exists(AppPath) && Directory.Exists(destinationFolder))
-                {
-                    //カレントディレクトリのフォルダのMP3を取得
-                    string[] mp3Files = Directory.GetFiles(AppPath, "*.mp3");
-
-                    foreach (string mp3File in mp3Files)
-                    {
-                        string fileName = Path.GetFileName(mp3File);
-                        string destinationPath = Path.Combine(destinationFolder, fileName);
-
-                        // MP3ファイルをコピー
-                        System.IO.File.Copy(mp3File, destinationPath);
-
-                        // コピー元のMP3ファイルを削除
-                        System.IO.File.Delete(mp3File);
-                    }
-
-                }
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-        #endregion
-
         #region "フォルダ内部削除"
         /// <summary>
         /// OutPutフォルダの中身の削除
@@ -360,249 +261,6 @@ namespace MusicDLWin
             timer1.Enabled = false;
         }
         #endregion
-
-        #region "SpotDLの一括インストール"
-        /// <summary>
-        /// SpotDLの一括ｲﾝｽﾄｰﾙ
-        /// </summary>
-        private void InstallSpotDL()
-        {
-            Application.DoEvents();
-            clsInstall install = new clsInstall(this.ResultText,this.progressBar1);
-            bool okngPython = install.InstallPython();
-            if (okngPython)
-            {
-                messageDisplayer.UpdateRichTextBox("Pythonのインストールが完了しました。");
-            }
-            bool okngFFmpeg = install.InstallFFmpeg();
-            if (okngFFmpeg)
-            {
-                messageDisplayer.UpdateRichTextBox("FFmpegのインストールが完了しました。");
-            }
-            install.Dispose();
-        }
-        #endregion
-
-        /// <summary>
-        /// Pythonアップデート処理
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            //管理者権限かどうかの取得
-            clsAdmin admin = new clsAdmin();
-            admin.IsAdministrator();
-            bool adm = admin.GetAdmin;
-
-            try
-            {
-                // Pythonがインストールされているか確認
-                if (!IsPythonInstalled())
-                {
-                    DialogResult result = MessageBox.Show("Pythonがインストールされていません。インストールしますか？", "Pythonのインストール", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                    if (result == DialogResult.Yes)
-                    {
-                        InstallPython();
-                    }
-                    else
-                    {
-                        return;
-                    }
-                }
-
-                // Pythonのアップデートコマンドを実行
-                ProcessStartInfo psi = new ProcessStartInfo();
-                psi.FileName = "cmd.exe"; // コマンドプロンプトを使用
-                psi.Arguments = "/c python -m pip install --upgrade pip"; // Pythonのアップデートコマンド
-                psi.RedirectStandardOutput = true;
-                psi.RedirectStandardError = true;
-                psi.UseShellExecute = false;
-                psi.CreateNoWindow = true;
-
-                using (Process process = Process.Start(psi))
-                {
-                    process.WaitForExit();
-
-                    // 結果を表示
-                    string output = process.StandardOutput.ReadToEnd();
-                    string error = process.StandardError.ReadToEnd();
-
-                    DateTime now = DateTime.Now;
-                    string sYmd = now.Year + "/" + now.Month + "/" + now.Day + " ";
-                    string sHms = now.Hour + ":" + now.Minute + ":" + now.Second;
-                    if (!string.IsNullOrEmpty(error))
-                    {
-                        messageDisplayer.UpdateRichTextBox("■Pythonインストール中にエラーが発生しました。(" + sYmd + sHms + ")■");
-                    }
-                    else
-                    {
-                        messageDisplayer.UpdateRichTextBox("■Pythonインストールに成功しました。(" + sYmd + sHms + ")■");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("例外が発生しました: " + ex.Message, "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        #region "Pythonアップデート処理"
-        /// <summary>
-        /// Pythonがインストールされているかチェック
-        /// </summary>
-        /// <returns>True：インストールされている</returns>
-        private bool IsPythonInstalled()
-        {
-            try
-            {
-                // Pythonのバージョンを取得してインストールを確認
-                ProcessStartInfo psi = new ProcessStartInfo();
-                psi.FileName = "cmd.exe";
-                psi.Arguments = "/c python --version";
-                psi.RedirectStandardOutput = true;
-                psi.RedirectStandardError = true;
-                psi.UseShellExecute = false;
-                psi.CreateNoWindow = true;
-
-                using (Process process = Process.Start(psi))
-                {
-                    process.WaitForExit();
-                    string output = process.StandardOutput.ReadToEnd();
-                    string error = process.StandardError.ReadToEnd();
-
-                    // エラーメッセージがない場合はインストール済みと判断
-                    if (string.IsNullOrEmpty(error))
-                    {
-                        return true;
-                    }
-                }
-            }
-            catch
-            {
-                // エラーが発生した場合はインストールされていないと判断
-                return false;
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Pythonが入ってない場合新規インストール
-        /// </summary>
-        private void InstallPython()
-        {
-            try
-            {
-                // Pythonのインストーラをダウンロード
-                string pythonInstallerUrl = "https://www.python.org/ftp/python/3.10.0/python-3.10.0-amd64.exe";
-                string installerPath = Path.Combine(Path.GetTempPath(), "python-installer.exe");
-
-                using (WebClient client = new WebClient())
-                {
-                    client.DownloadFile(pythonInstallerUrl, installerPath);
-                }
-
-                // Pythonインストーラを実行
-                ProcessStartInfo psi = new ProcessStartInfo();
-                psi.FileName = installerPath;
-                psi.Arguments = "/quiet InstallAllUsers=1 PrependPath=1"; // サイレントインストールでPATHを追加
-                psi.UseShellExecute = true;
-
-                using (Process process = Process.Start(psi))
-                {
-                    process.WaitForExit(); // インストールが完了するまで待機
-                }
-
-                MessageBox.Show("Pythonのインストールが完了しました。", "完了", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Pythonのインストールに失敗しました: " + ex.Message, "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-        #endregion
-
-        #region "イベント関係"
-        /// <summary>
-        /// フォームロード
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void SpotDL_Load(object sender, EventArgs e)
-        {
-
-            //コンフィグデータの読込み
-            ReadConfigData();
-
-            //OutPutフォルダの削除
-            this.CheckOutPutDeleteFiles();
-
-            //プログレスバー初期値セット
-            SetProgressBar();
-
-            //タイマーを非活性にセット
-            timer1.Enabled = false;
-
-            //RichTextBoxをメッセージプレイヤーにセット
-            MessageDisplayer messageDisplayer = new MessageDisplayer(this.ResultText);
-        }
-
-        /// <summary>
-        /// メニューダウンロードボタン押下
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ダウンロードToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            WorksFiles();
-        }
-
-        /// <summary>
-        /// メニュー出力先ボタン押下
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void 出力先ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            MoveMakeFolder();
-        }
-
-        /// <summary>
-        /// メニュー終了ボタン押下
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void アプリを終了しますToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (MessageBox.Show("MusicDLWindowsを終了しますか？", "MusicDLWindows", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
-            {
-                this.Close();
-                this.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// ヘルプボタン押下
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ヘルプToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            frmHelp help = new frmHelp();
-            help.ShowDialog();
-        }
-
-
-
-        /// <summary>
-        /// ダウンロードボタンクリック
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Download_Click(object sender, EventArgs e)
-        {
-            WorksFiles();
-        }
 
         #region "メイン処理"
         /// <summary>
@@ -785,6 +443,247 @@ namespace MusicDLWin
         }
         #endregion
 
+        #region "現在未使用"
+        #region "SpotDLの一括インストール"
+        /// <summary>
+        /// SpotDLの一括ｲﾝｽﾄｰﾙ
+        /// </summary>
+        private void InstallSpotDL()
+        {
+            Application.DoEvents();
+            clsInstall install = new clsInstall(this.ResultText,this.progressBar1);
+            bool okngPython = install.InstallPython();
+            if (okngPython)
+            {
+                messageDisplayer.UpdateRichTextBox("Pythonのインストールが完了しました。");
+            }
+            bool okngFFmpeg = install.InstallFFmpeg();
+            if (okngFFmpeg)
+            {
+                messageDisplayer.UpdateRichTextBox("FFmpegのインストールが完了しました。");
+            }
+            install.Dispose();
+        }
+        #endregion
+
+        /// <summary>
+        /// Pythonアップデート処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //管理者権限かどうかの取得
+            clsAdmin admin = new clsAdmin();
+            admin.IsAdministrator();
+            bool adm = admin.GetAdmin;
+
+            try
+            {
+                // Pythonがインストールされているか確認
+                if (!IsPythonInstalled())
+                {
+                    DialogResult result = MessageBox.Show("Pythonがインストールされていません。インストールしますか？", "Pythonのインストール", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    if (result == DialogResult.Yes)
+                    {
+                        InstallPython();
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+
+                // Pythonのアップデートコマンドを実行
+                ProcessStartInfo psi = new ProcessStartInfo();
+                psi.FileName = "cmd.exe"; // コマンドプロンプトを使用
+                psi.Arguments = "/c python -m pip install --upgrade pip"; // Pythonのアップデートコマンド
+                psi.RedirectStandardOutput = true;
+                psi.RedirectStandardError = true;
+                psi.UseShellExecute = false;
+                psi.CreateNoWindow = true;
+
+                using (Process process = Process.Start(psi))
+                {
+                    process.WaitForExit();
+
+                    // 結果を表示
+                    string output = process.StandardOutput.ReadToEnd();
+                    string error = process.StandardError.ReadToEnd();
+
+                    DateTime now = DateTime.Now;
+                    string sYmd = now.Year + "/" + now.Month + "/" + now.Day + " ";
+                    string sHms = now.Hour + ":" + now.Minute + ":" + now.Second;
+                    if (!string.IsNullOrEmpty(error))
+                    {
+                        messageDisplayer.UpdateRichTextBox("■Pythonインストール中にエラーが発生しました。(" + sYmd + sHms + ")■");
+                    }
+                    else
+                    {
+                        messageDisplayer.UpdateRichTextBox("■Pythonインストールに成功しました。(" + sYmd + sHms + ")■");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("例外が発生しました: " + ex.Message, "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        #region "Pythonアップデート処理"
+        /// <summary>
+        /// Pythonがインストールされているかチェック
+        /// </summary>
+        /// <returns>True：インストールされている</returns>
+        private bool IsPythonInstalled()
+        {
+            try
+            {
+                // Pythonのバージョンを取得してインストールを確認
+                ProcessStartInfo psi = new ProcessStartInfo();
+                psi.FileName = "cmd.exe";
+                psi.Arguments = "/c python --version";
+                psi.RedirectStandardOutput = true;
+                psi.RedirectStandardError = true;
+                psi.UseShellExecute = false;
+                psi.CreateNoWindow = true;
+
+                using (Process process = Process.Start(psi))
+                {
+                    process.WaitForExit();
+                    string output = process.StandardOutput.ReadToEnd();
+                    string error = process.StandardError.ReadToEnd();
+
+                    // エラーメッセージがない場合はインストール済みと判断
+                    if (string.IsNullOrEmpty(error))
+                    {
+                        return true;
+                    }
+                }
+            }
+            catch
+            {
+                // エラーが発生した場合はインストールされていないと判断
+                return false;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Pythonが入ってない場合新規インストール
+        /// </summary>
+        private void InstallPython()
+        {
+            try
+            {
+                // Pythonのインストーラをダウンロード
+                string pythonInstallerUrl = "https://www.python.org/ftp/python/3.10.0/python-3.10.0-amd64.exe";
+                string installerPath = Path.Combine(Path.GetTempPath(), "python-installer.exe");
+
+                using (WebClient client = new WebClient())
+                {
+                    client.DownloadFile(pythonInstallerUrl, installerPath);
+                }
+
+                // Pythonインストーラを実行
+                ProcessStartInfo psi = new ProcessStartInfo();
+                psi.FileName = installerPath;
+                psi.Arguments = "/quiet InstallAllUsers=1 PrependPath=1"; // サイレントインストールでPATHを追加
+                psi.UseShellExecute = true;
+
+                using (Process process = Process.Start(psi))
+                {
+                    process.WaitForExit(); // インストールが完了するまで待機
+                }
+
+                MessageBox.Show("Pythonのインストールが完了しました。", "完了", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Pythonのインストールに失敗しました: " + ex.Message, "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        #endregion
+        #endregion
+
+        #region "イベント関係"
+        /// <summary>
+        /// フォームロード
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SpotDL_Load(object sender, EventArgs e)
+        {
+
+            //OutPutフォルダの削除
+            CheckOutPutDeleteFiles();
+
+            //タイマーを非活性にセット
+            timer1.Enabled = false;
+
+            //RichTextBoxをメッセージプレイヤーにセット
+            MessageDisplayer messageDisplayer = new MessageDisplayer(this.ResultText);
+        }
+
+        /// <summary>
+        /// メニューダウンロードボタン押下
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ダウンロードToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            WorksFiles();
+        }
+
+        /// <summary>
+        /// メニュー出力先ボタン押下
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void 出力先ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MoveMakeFolder();
+        }
+
+        /// <summary>
+        /// メニュー終了ボタン押下
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void アプリを終了しますToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("MusicDLWindowsを終了しますか？", "MusicDLWindows", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
+            {
+                this.Close();
+                this.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// ヘルプボタン押下
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ヘルプToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            frmHelp help = new frmHelp();
+            help.ShowDialog();
+        }
+
+
+
+        /// <summary>
+        /// ダウンロードボタンクリック
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Download_Click(object sender, EventArgs e)
+        {
+            WorksFiles();
+        }
+
+
+
 
         /// <summary>
         /// 出力先ボタン押下
@@ -823,13 +722,13 @@ namespace MusicDLWin
             {
                 try
                 {
-                    stop = true;
-                    process.Close();
-                    process.Dispose();
-                    process.Kill();
+                    ProcessKills("ffmpeg");
+                    ProcessKills("spotdl");
+                    StopTimerProgresBar();
                 }
                 catch (Exception ex)
                 {
+                    Console.WriteLine(ex.Message);
                 }
                 MessageBox.Show("ダウンロード停止させました。", "ダウンロード停止", MessageBoxButtons.OK, MessageBoxIcon.Information);
             };
@@ -926,30 +825,6 @@ namespace MusicDLWin
                     }
                 }
             }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        private void SetProgressBar() {
-            progressBar = this.progressBar1;
-            progressBar.Minimum = 0;
-            progressBar.Maximum = 100;
-            progressBar.Step = 10;
-            progressBar.Value = 0;
-            progressBar.Visible = true;
-         }
-        /// <summary>
-        /// コンフィグデータ読込み
-        /// </summary>
-        private void ReadConfigData()
-        {
-            //コンフィグデータの読込み
-            clsIniData objIni = new clsIniData();
-            objIni.GetIniData();
-            this.Kaisuu = objIni.getKaisuu;
-            this.TimeOut = objIni.getTimeOut;
-            textAlbumName.Text = "";
-            textOutDir.Text = objIni.getOutPath;
         }
 
         private void ファイルToolStripMenuItem_Click(object sender, EventArgs e)

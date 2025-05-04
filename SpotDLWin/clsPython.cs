@@ -47,7 +47,7 @@ namespace MusicDLWin
         /// <summary>
         /// Pythonのダウンロード
         /// </summary>
-        public async Task DownloadPythonInstaller()
+        public void DownloadPythonInstaller()
         {
             clsFileFolder file = new clsFileFolder();
             file.CreateDirectory(PythonDownloadPath);

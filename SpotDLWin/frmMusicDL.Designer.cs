@@ -96,12 +96,11 @@ namespace MusicDLWin
             this.ファイルToolStripMenuItem.Name = "ファイルToolStripMenuItem";
             this.ファイルToolStripMenuItem.Size = new System.Drawing.Size(65, 24);
             this.ファイルToolStripMenuItem.Text = "ファイル";
-            this.ファイルToolStripMenuItem.Click += new System.EventHandler(this.ファイルToolStripMenuItem_Click);
             // 
             // ダウンロードToolStripMenuItem
             // 
             this.ダウンロードToolStripMenuItem.Name = "ダウンロードToolStripMenuItem";
-            this.ダウンロードToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.ダウンロードToolStripMenuItem.Size = new System.Drawing.Size(209, 26);
             this.ダウンロードToolStripMenuItem.Text = "ﾀﾞｳﾝﾛｰﾄﾞ";
             this.ダウンロードToolStripMenuItem.Click += new System.EventHandler(this.ダウンロードToolStripMenuItem_Click);
             // 
@@ -109,21 +108,21 @@ namespace MusicDLWin
             // 
             this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Enabled = false;
             this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Name = "ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem";
-            this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Size = new System.Drawing.Size(209, 26);
             this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Text = "Phytonｱｯﾌﾟﾃﾞｰﾄ";
             this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Click += new System.EventHandler(this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem_Click);
             // 
             // musilDLｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem
             // 
             this.musilDLｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Name = "musilDLｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem";
-            this.musilDLｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.musilDLｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Size = new System.Drawing.Size(209, 26);
             this.musilDLｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Text = "MusilDLｱｯﾌﾟﾃﾞｰﾄ";
             this.musilDLｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Click += new System.EventHandler(this.musilDLｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem_Click);
             // 
             // 出力先ToolStripMenuItem
             // 
             this.出力先ToolStripMenuItem.Name = "出力先ToolStripMenuItem";
-            this.出力先ToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.出力先ToolStripMenuItem.Size = new System.Drawing.Size(209, 26);
             this.出力先ToolStripMenuItem.Text = "出力先";
             this.出力先ToolStripMenuItem.Click += new System.EventHandler(this.出力先ToolStripMenuItem_Click);
             // 
@@ -131,7 +130,7 @@ namespace MusicDLWin
             // 
             this.一括ｲﾝｽﾄｰﾙToolStripMenuItem.Enabled = false;
             this.一括ｲﾝｽﾄｰﾙToolStripMenuItem.Name = "一括ｲﾝｽﾄｰﾙToolStripMenuItem";
-            this.一括ｲﾝｽﾄｰﾙToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.一括ｲﾝｽﾄｰﾙToolStripMenuItem.Size = new System.Drawing.Size(209, 26);
             this.一括ｲﾝｽﾄｰﾙToolStripMenuItem.Text = "一括ｲﾝｽﾄｰﾙ";
             this.一括ｲﾝｽﾄｰﾙToolStripMenuItem.Click += new System.EventHandler(this.一括ｲﾝｽﾄｰﾙToolStripMenuItem_Click);
             // 
@@ -264,7 +263,6 @@ namespace MusicDLWin
             this.StopButton.Size = new System.Drawing.Size(91, 86);
             this.StopButton.TabIndex = 4;
             this.StopButton.UseVisualStyleBackColor = true;
-            this.StopButton.Visible = false;
             this.StopButton.Click += new System.EventHandler(this.StopButton_Click);
             // 
             // timer1
@@ -279,7 +277,7 @@ namespace MusicDLWin
             this.progressBar1.Location = new System.Drawing.Point(5, 506);
             this.progressBar1.Margin = new System.Windows.Forms.Padding(4);
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(1069, 26);
+            this.progressBar1.Size = new System.Drawing.Size(970, 26);
             this.progressBar1.Step = 1;
             this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.progressBar1.TabIndex = 30;
