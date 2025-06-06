@@ -29,10 +29,13 @@ namespace MusicDLWin
         /// <returns></returns>
         public async Task InstallSpotDL()
         {
+            clsIniData iniData = new clsIniData();
+            iniData.GetIniData();
+            string PythonPath = iniData.getPythonPath;
             ProcessStartInfo startInfo = new ProcessStartInfo()
             {
-                FileName = "cmd.exe",
-                Arguments = "/c python -m pip install spotdl",
+                FileName = $"{PythonPath}\\python.exe",
+                Arguments = "-m pip install --user spotdl",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,

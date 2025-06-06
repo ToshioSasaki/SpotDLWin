@@ -83,24 +83,19 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="clsFFmpegFinder.cs" />
     <Compile Include="clsProgressBarDisplay.cs" />
     <Compile Include="clsAdmin.cs" />
     <Compile Include="clsInstall.cs" />
     <Compile Include="clsFileFolder.cs" />
     <Compile Include="clsMessageDisPlayer.cs" />
     <Compile Include="clsPython.cs" />
-    <Compile Include="clsSpotDl.cs" />
+    <Compile Include="clsPythonFinder.cs" />
     <Compile Include="frmHelp.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="frmHelp.Designer.cs">
       <DependentUpon>frmHelp.cs</DependentUpon>
-    </Compile>
-    <Compile Include="frmKaisuu.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="frmKaisuu.Designer.cs">
-      <DependentUpon>frmKaisuu.cs</DependentUpon>
     </Compile>
     <Compile Include="frmMusicDL.cs">
       <SubType>Form</SubType>
@@ -109,6 +104,12 @@
       <DependentUpon>frmMusicDL.cs</DependentUpon>
     </Compile>
     <Compile Include="clsIniData.cs" />
+    <Compile Include="frmPathSetting.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmPathSetting.Designer.cs">
+      <DependentUpon>frmPathSetting.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="frmTitle.cs">
@@ -120,12 +121,12 @@
     <EmbeddedResource Include="frmHelp.resx">
       <DependentUpon>frmHelp.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmKaisuu.resx">
-      <DependentUpon>frmKaisuu.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="frmMusicDL.resx">
       <DependentUpon>frmMusicDL.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmPathSetting.resx">
+      <DependentUpon>frmPathSetting.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

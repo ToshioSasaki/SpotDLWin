@@ -5,11 +5,11 @@
     <Setting Name="OutPath" Type="System.String" Scope="User">
       <Value Profile="(Default)">c:\spotdl</Value>
     </Setting>
-    <Setting Name="Kaisuu" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">1</Value>
+    <Setting Name="PythonPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="TimeOut" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">60000</Value>
+    <Setting Name="FFmpegPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
     </Setting>
   </Settings>
 </SettingsFile>

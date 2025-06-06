@@ -1,5 +1,6 @@
 ﻿using Raven.Abstractions.Util;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -17,7 +18,6 @@ namespace MusicDLWin
     public partial class frmMusicDL : Form
     {
 
-
         #region "メッセージ表示クラス"
         private MessageDisplayer messageDisplayer;
         #endregion
@@ -27,8 +27,6 @@ namespace MusicDLWin
         /// 各メンバプロパティ
         /// </summary>
         ProgressBar progressBar { get; set; } = new ProgressBar();
-        private int Kaisuu { get; set; }
-        private int TimeOut { get; set; }
         #endregion
 
         #region "コンストラクタ"
@@ -62,8 +60,6 @@ namespace MusicDLWin
             //コンフィグデータの読込み
             clsIniData objIni = new clsIniData();
             objIni.GetIniData();
-            this.Kaisuu = objIni.getKaisuu;
-            this.TimeOut = objIni.getTimeOut;
             textAlbumName.Text = "";
             textOutDir.Text = objIni.getOutPath;
         }
@@ -198,6 +194,53 @@ namespace MusicDLWin
         }
         #endregion
 
+        #region "パス設定ダイアログを開きます。"
+        /// <summary>
+        /// パス設定ダイアログを開きます。
+        /// </summary>
+        /// <param name="dirs">リストのディレクトリ</param>
+        /// <param name="title">Python、FFmpeg</param>
+        private void ShowPathSetting(List<string> dirs,string title)
+        {
+            clsIniData objIni = new clsIniData();
+            objIni.GetIniData();
+        
+            using (frmPathSetting pathSettingForm = new frmPathSetting(dirs,title))
+            {
+                // ダイアログとして開く
+                if (pathSettingForm.ShowDialog() == DialogResult.OK)
+                {
+                    // 選択されたパスを受け取る
+                    if (!string.IsNullOrEmpty(pathSettingForm.SelectedPath))
+                    {   
+                        if (System.IO.Directory.Exists(pathSettingForm.SelectedPath))
+                        {
+                            if (title == "Python")
+                            {
+                                // Pythonのパスを設定
+                                objIni.SetPythonPath(pathSettingForm.SelectedPath);
+                                objIni.GetIniData();
+                                messageDisplayer.UpdateRichTextBox("Pythonのパスを設定しました。PythonPath：" + objIni.getPythonPath);
+                            }
+                            else if (title == "FFmpeg")
+                            {
+                                // FFmpegのパスを設定
+                                objIni.SetFFmpegPath(pathSettingForm.SelectedPath);
+                                objIni.GetIniData();
+                                messageDisplayer.UpdateRichTextBox("FFmpegのパスを設定しました。FFmpegPath：" + objIni.getFFmpegPath);
+                            }
+                        }
+                        else
+                        {
+                            messageDisplayer.UpdateRichTextBox("選択されたパスが存在しません。Path：" + pathSettingForm.SelectedPath);
+                        }
+                    }  
+                }
+            }
+        }
+        #endregion
+
+
         #region "フォルダ内部削除"
         /// <summary>
         /// OutPutフォルダの中身の削除
@@ -322,11 +365,30 @@ namespace MusicDLWin
         {
             try
             {
-                string tempFolder = Path.Combine(outputFolder);
-                Directory.CreateDirectory(tempFolder);
-                string spotdlPath = @"C:\Program Files (x86)\Python\Scripts\spotdl.exe";
-                string arguments = $"/c chcp 65001 > nul && \"{spotdlPath}\" \"{playlistUrl}\" --output \"{outputFolder}\"";
+                Directory.CreateDirectory(outputFolder);
 
+                int ffmpegErrorCount = 0;
+
+                clsIniData objIni = new clsIniData();
+                objIni.GetIniData();
+                string PythonPath = objIni.getPythonPath;
+                string FFmpegPath = objIni.getFFmpegPath;
+                string pythonExe = Path.Combine(PythonPath, "python.exe");
+                string FFmpegExe = Path.Combine(FFmpegPath, "ffmpeg.exe");
+
+                if (!System.IO.File.Exists(pythonExe))
+                {
+                    messageDisplayer.UpdateRichTextBox("Pythonが見つかりません。\nパス設定を確認してください。");
+                    return;
+                }
+
+                if (!System.IO.File.Exists(FFmpegExe))
+                {
+                    messageDisplayer.UpdateRichTextBox("FFmpegが見つかりません。\nパス設定を確認してください。");
+                    return;
+                }
+
+                string arguments = $"/c chcp 65001 > nul && \"{pythonExe}\" -m spotdl \"{playlistUrl}\" --output \"{outputFolder}\" --ffmpeg \"{FFmpegExe}\" --bitrate 192k";
                 var psi = new ProcessStartInfo
                 {
                     FileName = "cmd.exe",
@@ -353,16 +415,13 @@ namespace MusicDLWin
                             return;
                         }
 
-                        string line = e.Data;
-                        int httpIndex = line.IndexOf("http");
-                        if (httpIndex > 0)
+                        if (e.Data.Contains("http"))
                         {
-                            line = line.Substring(0, httpIndex).TrimEnd(':').Trim();
+                            return;
                         }
-                        if (!string.IsNullOrWhiteSpace(line))
-                        {
-                            messageDisplayer.UpdateRichTextBox(line);
-                        }
+
+                        if (!string.IsNullOrWhiteSpace(e.Data))
+                            messageDisplayer.UpdateRichTextBox(e.Data);
                     };
 
                     process.ErrorDataReceived += (s, e) =>
@@ -373,16 +432,18 @@ namespace MusicDLWin
                             return;
                         }
 
-                        string line = e.Data;
-                        int httpIndex = line.IndexOf("http");
-                        if (httpIndex > 0)
+                        if (e.Data.Contains("http"))
                         {
-                            line = line.Substring(0, httpIndex).TrimEnd(':').Trim();
+                            return;
                         }
-                        if (!string.IsNullOrWhiteSpace(line))
+
+                        if (e.Data.Contains("FFmpegError"))
                         {
-                            messageDisplayer.UpdateRichTextBox(line);
+                            ffmpegErrorCount++;
                         }
+
+                        if (!string.IsNullOrWhiteSpace(e.Data))
+                            messageDisplayer.UpdateRichTextBox(e.Data);
                     };
 
                     process.Start();
@@ -395,16 +456,49 @@ namespace MusicDLWin
                         errorCompletion.Task
                     );
                 }
-                ProcessKills("ffmpeg");
-                ProcessKills("spotdl");
 
+                ProcessKills("ffmpeg");  // ffmpeg はそのままでOK
                 messageDisplayer.UpdateRichTextBox("✅ ダウンロード完了しました。");
+
+                if (ffmpegErrorCount > 0)
+                {
+                    DialogResult result = MessageBox.Show("FFmpegエラーが発生しています。今直ぐにFFmpegのキャッシュをクリアしますか？", "確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation);
+                    if (DialogResult.OK == result)
+                    {
+                        ClearffmpegError();
+                    }
+                }
             }
             catch (Exception ex)
             {
                 messageDisplayer.UpdateRichTextBox($"❌ エラー発生: {ex.Message}");
             }
         }
+
+        /// <summary>
+        /// SpotDL、FFmpegキャッシュクリア
+        /// </summary>
+        private void ClearffmpegError()
+        {
+            string spotdlFolder = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                ".spotdl"
+            );
+
+            if (Directory.Exists(spotdlFolder))
+            {
+                try
+                {
+                    Directory.Delete(spotdlFolder, true);
+                    messageDisplayer.UpdateRichTextBox("⚠️ SpotDLキャッシュフォルダを削除しました。", true);
+                }
+                catch (Exception ex)
+                {
+                    messageDisplayer.UpdateRichTextBox($"❌ SpotDLフォルダ削除失敗: {ex.Message}", true);
+                }
+            }
+        }
+
 
         /// <summary>
         /// MP3のプロパティにアルバム名とトラック番号を付け加える
@@ -683,8 +777,6 @@ namespace MusicDLWin
         }
 
 
-
-
         /// <summary>
         /// 出力先ボタン押下
         /// </summary>
@@ -745,8 +837,6 @@ namespace MusicDLWin
             Application.DoEvents();
         }
 
-
-
         /// <summary>
         /// Helpを表示
         /// </summary>
@@ -761,38 +851,18 @@ namespace MusicDLWin
         }
 
         /// <summary>
-        /// 試行回数を表示
+        /// Pythonパス設定
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void 試行回数ToolStripMenuItem1_Click(object sender, EventArgs e)
+        private void pythonパス設定ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            using (frmKaisuu kaisu = new frmKaisuu())
-            {
-                //コンフィグデータの読込み
-                //ReadConfigData();
-                kaisu.KaisuuValue = this.Kaisuu;
-                kaisu.TimeOutValue = this.TimeOut / 60000;
-                if (kaisu.ShowDialog() == DialogResult.OK)
-                {
-                    this.TimeOut = kaisu.TimeOutValue;
-                    this.Kaisuu = kaisu.KaisuuValue;
-                }
-            }
+            PythonFinder pythonFinder = new PythonFinder(this.ResultText);
+            var pythonDirs = pythonFinder.GetPythonFinder();
 
-        }
-
-        /// <summary>
-        /// 本ソフトアップデート
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void musilDLｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (MessageBox.Show("MusicDLをアップデートします。よろしいですか？", "確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
-            {
-                return;
-            }
+            clsIniData objIni = new clsIniData();
+            objIni.GetIniData();
+            ShowPathSetting(pythonDirs,"Python");
         }
 
         /// <summary>
@@ -800,7 +870,7 @@ namespace MusicDLWin
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async void 一括ｲﾝｽﾄｰﾙToolStripMenuItem_Click(object sender, EventArgs e)
+        private void 一括ｲﾝｽﾄｰﾙToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show("SpotDLをインストールします。よろしいですか？\nPythonとffmpegのインストールも行います。", "確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
             {
@@ -827,9 +897,19 @@ namespace MusicDLWin
             }
         }
 
-        private void ファイルToolStripMenuItem_Click(object sender, EventArgs e)
+        /// <summary>
+        /// FFmpegパス設定
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void fFmpegパス設定ToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            FFmpegFinder FFmpegFinder = new FFmpegFinder(this.ResultText);
+            var FFmpegDirs = FFmpegFinder.GetFFmpegFinder();
 
+            clsIniData objIni = new clsIniData();
+            objIni.GetIniData();
+            ShowPathSetting(FFmpegDirs, "FFmpeg");
         }
     }
     #endregion

@@ -8,30 +8,30 @@ using System.Threading.Tasks;
 namespace MusicDLWin
 {
     /// <summary>
-    /// INIファイルの取得をします。
+    /// Configファイルの取得をします。
     /// </summary>
     public class clsIniData
     {
         public string getOutPath { get; set; } = "";
-        public int getKaisuu { get; set; } = 0;
-        public int getTimeOut { get; set; } = 0;
+        public string getPythonPath { get; set; } = "";
+        public string getFFmpegPath { get; set; } = "";
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public clsIniData() {
             this.getOutPath = string.Empty;
-            this.getTimeOut = 0;
-            this.getKaisuu = 0;
+            this.getPythonPath = string.Empty;
+            this.getFFmpegPath = string.Empty;
         }
 
         /// <summary>
-        /// INIファイルの取得
+        /// Configファイルの一括取得
         /// </summary>
         public void GetIniData() {
             this.getOutPath = MusicDLWin.Properties.Settings.Default.OutPath;
-            this.getKaisuu = MusicDLWin.Properties.Settings.Default.Kaisuu;
-            this.getTimeOut = MusicDLWin.Properties.Settings.Default.TimeOut;
+            this.getPythonPath = MusicDLWin.Properties.Settings.Default.PythonPath;
+            this.getFFmpegPath = MusicDLWin.Properties.Settings.Default.FFmpegPath;
         }
 
         /// <summary>
@@ -45,22 +45,22 @@ namespace MusicDLWin
         }
 
         /// <summary>
-        /// 環境設定ダウンロード試行回数
+        /// Pythonのパスを設定します。
         /// </summary>
-        /// <param name="kaisuu"></param>
-        public void SetKaisuu(int kaisuu)
+        /// <param name="path"></param>
+        public void SetPythonPath(string path)
         {
-            MusicDLWin.Properties.Settings.Default.Kaisuu = kaisuu;
+            MusicDLWin.Properties.Settings.Default.PythonPath = path;
             MusicDLWin.Properties.Settings.Default.Save();
         }
 
         /// <summary>
-        /// 環境設定TimeOut
+        /// FFmpegのパスを設定します。
         /// </summary>
-        /// <param name="timeOut"></param>
-        public void SetTimeOut(int timeOut)
+        /// <param name="path"></param>
+        public void SetFFmpegPath(string path)
         {
-            MusicDLWin.Properties.Settings.Default.TimeOut = timeOut;
+            MusicDLWin.Properties.Settings.Default.FFmpegPath = path;
             MusicDLWin.Properties.Settings.Default.Save();
         }
     }

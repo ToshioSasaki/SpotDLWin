@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Raven.Client.Document;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -32,7 +33,7 @@ namespace MusicDLWin
         {
             if (Message != null)
             {
-
+                
                 if (Thread)
                 {
                     try
@@ -63,15 +64,27 @@ namespace MusicDLWin
         /// <param name="Message">表示する文字列</param>
         public void UpdateRichTextBox(string Message)
         {
+            
             if (RichTextBox.InvokeRequired)
             {
                 RichTextBox.Invoke(new Action<string>(UpdateRichTextBox), Message);
             }
             else
             {
+                Message = GetNowDate() + Message;
                 RichTextBox.AppendText(Message + "\n");
                 RichTextBox.ScrollToCaret();
             }
+        }
+
+        /// <summary>
+        /// 現在の日付と時刻を取得します。
+        /// </summary>
+        /// <returns></returns>
+        private string GetNowDate()
+        {
+            string now = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
+            return now + "　";
         }
     }
 }

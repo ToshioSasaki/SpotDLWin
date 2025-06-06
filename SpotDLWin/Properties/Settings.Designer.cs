@@ -37,25 +37,25 @@ namespace MusicDLWin.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
-        public int Kaisuu {
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string PythonPath {
             get {
-                return ((int)(this["Kaisuu"]));
+                return ((string)(this["PythonPath"]));
             }
             set {
-                this["Kaisuu"] = value;
+                this["PythonPath"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("60000")]
-        public int TimeOut {
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string FFmpegPath {
             get {
-                return ((int)(this["TimeOut"]));
+                return ((string)(this["FFmpegPath"]));
             }
             set {
-                this["TimeOut"] = value;
+                this["FFmpegPath"] = value;
             }
         }
     }
