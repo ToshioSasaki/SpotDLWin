@@ -178,6 +178,7 @@ namespace MusicDLWin
         {
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
             {
+                folderBrowserDialog.SelectedPath = textOutDir.Text;
                 DialogResult result = folderBrowserDialog.ShowDialog();
 
                 if (result == DialogResult.OK)
