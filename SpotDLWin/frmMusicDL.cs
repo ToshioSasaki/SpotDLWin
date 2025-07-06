@@ -18,38 +18,33 @@ namespace MusicDLWin
     public partial class frmMusicDL : Form
     {
 
-        #region "メッセージ表示クラス"
-        private MessageDisplayer messageDisplayer;
-        #endregion
-
-        #region"各メンバ"
-        /// <summary>
-        /// 各メンバプロパティ
-        /// </summary>
-        ProgressBar progressBar { get; set; } = new ProgressBar();
+        #region "各プロパティ"
+        /// <summary>  
+        /// 各プロパティ  
+        /// </summary
+        private MessageDisplayer messageDisplayer { get; set; } = null;
+        private bool CloseFlg { get; set; } = false; // フォームのクローズフラグ
         #endregion
 
         #region "コンストラクタ"
         public frmMusicDL()
         {
             InitializeComponent();
-            SetProgressBar();
-            ReadConfigData();
             messageDisplayer = new MessageDisplayer(this.ResultText);
         }
         #endregion
 
+        #region "初期化処理"
         /// <summary>
         /// プログレスバーの初期化
         /// </summary>
-        private void SetProgressBar()
+        private void SetPrgBar()
         {
-            progressBar = this.progressBar1;
-            progressBar.Minimum = 0;
-            progressBar.Maximum = 100;
-            progressBar.Step = 10;
-            progressBar.Value = 0;
-            progressBar.Visible = true;
+            PrgBar.Minimum = 0;
+            PrgBar.Maximum = 100;
+            PrgBar.Step = 10;
+            PrgBar.Value = 0;
+            PrgBar.Visible = true;
         }
 
         /// <summary>
@@ -63,6 +58,7 @@ namespace MusicDLWin
             textAlbumName.Text = "";
             textOutDir.Text = objIni.getOutPath;
         }
+        #endregion
 
         #region "起動しているプロセスの強制終了"
         /// <summary>
@@ -288,9 +284,9 @@ namespace MusicDLWin
         /// </summary>
         private void StartTimerProgresBar()
         {
-            timer1.Enabled = true;
-            timer1.Start();
-            progressBar1.Value = 0;
+            Time.Enabled = true;
+            Time.Start();
+            PrgBar.Value = 0;
         }
         #endregion
 
@@ -300,9 +296,9 @@ namespace MusicDLWin
         /// </summary>
         private void StopTimerProgresBar()
         {
-            timer1.Stop();
-            progressBar1.Value = 0;
-            timer1.Enabled = false;
+            Time.Stop();
+            PrgBar.Value = 0;
+            Time.Enabled = false;
         }
         #endregion
 
@@ -458,7 +454,7 @@ namespace MusicDLWin
                     );
                 }
 
-                ProcessKills("ffmpeg");  // ffmpeg はそのままでOK
+                ProcessKills("ffmpeg"); 
                 messageDisplayer.UpdateRichTextBox("✅ ダウンロード完了しました。");
 
                 if (ffmpegErrorCount > 0)
@@ -472,7 +468,8 @@ namespace MusicDLWin
             }
             catch (Exception ex)
             {
-                messageDisplayer.UpdateRichTextBox($"❌ エラー発生: {ex.Message}");
+                // --- エラー詳細を表示 ---
+                messageDisplayer.UpdateRichTextBox($"❌ エラー発生: {ex.Message}\n{ex.StackTrace}");
             }
         }
 
@@ -538,186 +535,101 @@ namespace MusicDLWin
         }
         #endregion
 
-        #region "現在未使用"
-        #region "SpotDLの一括インストール"
+        #region "PythonとSpotDLAPIとFFmpegの一括インストール(Pythonの仮想化環境にインストール)"
         /// <summary>
-        /// SpotDLの一括ｲﾝｽﾄｰﾙ
-        /// </summary>
-        private void InstallSpotDL()
+        /// PythonとSpotDLAPIとFFmpegの一括インストール(Pythonの仮想化環境にインストール
+        /// </summary>        
+        private async void InstallSpotDL()
         {
-            Application.DoEvents();
-            clsInstall install = new clsInstall(this.ResultText,this.progressBar1);
-            bool okngPython = install.InstallPython();
+            clsInstall install = new clsInstall(this.ResultText);
+            StartTimerProgresBar();
+            bool okngPython = await install.InstallPython();
             if (okngPython)
             {
-                messageDisplayer.UpdateRichTextBox("Pythonのインストールが完了しました。");
+               messageDisplayer.UpdateRichTextBox("PythonとSpotDLAPIのインストールが完了しました。");
             }
-            bool okngFFmpeg = install.InstallFFmpeg();
+
+            bool okngFFmpeg = await install.InstallFFmpeg();
             if (okngFFmpeg)
             {
                 messageDisplayer.UpdateRichTextBox("FFmpegのインストールが完了しました。");
             }
+            StopTimerProgresBar();
             install.Dispose();
-        }
-        #endregion
 
-        /// <summary>
-        /// Pythonアップデート処理
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            //管理者権限かどうかの取得
-            clsAdmin admin = new clsAdmin();
-            admin.IsAdministrator();
-            bool adm = admin.GetAdmin;
-
-            try
+            // インストール完了後にMusicDLWin.exeを再起動する
+            if ((okngPython || okngFFmpeg) && MessageBox.Show("インストールが完了しました。アプリケーションを再起動しますか？", "再起動確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
             {
-                // Pythonがインストールされているか確認
-                if (!IsPythonInstalled())
-                {
-                    DialogResult result = MessageBox.Show("Pythonがインストールされていません。インストールしますか？", "Pythonのインストール", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                    if (result == DialogResult.Yes)
-                    {
-                        InstallPython();
-                    }
-                    else
-                    {
-                        return;
-                    }
-                }
-
-                // Pythonのアップデートコマンドを実行
-                ProcessStartInfo psi = new ProcessStartInfo();
-                psi.FileName = "cmd.exe"; // コマンドプロンプトを使用
-                psi.Arguments = "/c python -m pip install --upgrade pip"; // Pythonのアップデートコマンド
-                psi.RedirectStandardOutput = true;
-                psi.RedirectStandardError = true;
-                psi.UseShellExecute = false;
-                psi.CreateNoWindow = true;
-
-                using (Process process = Process.Start(psi))
-                {
-                    process.WaitForExit();
-
-                    // 結果を表示
-                    string output = process.StandardOutput.ReadToEnd();
-                    string error = process.StandardError.ReadToEnd();
-
-                    DateTime now = DateTime.Now;
-                    string sYmd = now.Year + "/" + now.Month + "/" + now.Day + " ";
-                    string sHms = now.Hour + ":" + now.Minute + ":" + now.Second;
-                    if (!string.IsNullOrEmpty(error))
-                    {
-                        messageDisplayer.UpdateRichTextBox("■Pythonインストール中にエラーが発生しました。(" + sYmd + sHms + ")■");
-                    }
-                    else
-                    {
-                        messageDisplayer.UpdateRichTextBox("■Pythonインストールに成功しました。(" + sYmd + sHms + ")■");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("例外が発生しました: " + ex.Message, "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        #region "Pythonアップデート処理"
-        /// <summary>
-        /// Pythonがインストールされているかチェック
-        /// </summary>
-        /// <returns>True：インストールされている</returns>
-        private bool IsPythonInstalled()
-        {
-            try
-            {
-                // Pythonのバージョンを取得してインストールを確認
-                ProcessStartInfo psi = new ProcessStartInfo();
-                psi.FileName = "cmd.exe";
-                psi.Arguments = "/c python --version";
-                psi.RedirectStandardOutput = true;
-                psi.RedirectStandardError = true;
-                psi.UseShellExecute = false;
-                psi.CreateNoWindow = true;
-
-                using (Process process = Process.Start(psi))
-                {
-                    process.WaitForExit();
-                    string output = process.StandardOutput.ReadToEnd();
-                    string error = process.StandardError.ReadToEnd();
-
-                    // エラーメッセージがない場合はインストール済みと判断
-                    if (string.IsNullOrEmpty(error))
-                    {
-                        return true;
-                    }
-                }
-            }
-            catch
-            {
-                // エラーが発生した場合はインストールされていないと判断
-                return false;
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Pythonが入ってない場合新規インストール
-        /// </summary>
-        private void InstallPython()
-        {
-            try
-            {
-                // Pythonのインストーラをダウンロード
-                string pythonInstallerUrl = "https://www.python.org/ftp/python/3.10.0/python-3.10.0-amd64.exe";
-                string installerPath = Path.Combine(Path.GetTempPath(), "python-installer.exe");
-
-                using (WebClient client = new WebClient())
-                {
-                    client.DownloadFile(pythonInstallerUrl, installerPath);
-                }
-
-                // Pythonインストーラを実行
-                ProcessStartInfo psi = new ProcessStartInfo();
-                psi.FileName = installerPath;
-                psi.Arguments = "/quiet InstallAllUsers=1 PrependPath=1"; // サイレントインストールでPATHを追加
-                psi.UseShellExecute = true;
-
-                using (Process process = Process.Start(psi))
-                {
-                    process.WaitForExit(); // インストールが完了するまで待機
-                }
-
-                MessageBox.Show("Pythonのインストールが完了しました。", "完了", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Pythonのインストールに失敗しました: " + ex.Message, "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.CloseFlg = true;
+                string exePath = Application.ExecutablePath;
+                Process.Start(exePath);
+                Application.Exit();
+                this.Close();
             }
         }
         #endregion
+
+        #region "PythonとFFmpegのインストールチェック"
+        /// <summary>
+        /// PythonとFFmpegのインストールチェック
+        /// </summary>
+        /// <returns></returns>
+        private async Task CheckPythonAndFFmpegAsync()
+        {
+            await Task.Run(() =>
+            {
+                bool isPythonFFmpegInstalled = true;
+                clsIniData objIni = new clsIniData();
+                objIni.GetIniData();
+
+                // Pythonのパスチェック
+                if (string.IsNullOrEmpty(objIni.getPythonPath) || !Directory.Exists(objIni.getPythonPath))
+                {
+                    messageDisplayer.UpdateRichTextBox("Pythonのパスが設定されていません。");
+                    isPythonFFmpegInstalled = false;
+                }
+
+                // FFmpegのパスチェック
+                if (string.IsNullOrEmpty(objIni.getFFmpegPath) || !Directory.Exists(objIni.getFFmpegPath))
+                {
+                    messageDisplayer.UpdateRichTextBox("FFmpegのパスが設定されていません。");
+                    isPythonFFmpegInstalled = false;
+                }
+
+                if (!isPythonFFmpegInstalled)
+                {
+                    DialogResult result = MessageBox.Show("PythonとFFmpegがインストールされていません。インストールしてください", "確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+                    if (result == DialogResult.OK)
+                    {
+                        InstallSpotDL();
+                    }
+                }
+            });
+        }
         #endregion
 
         #region "イベント関係"
         /// <summary>
-        /// フォームロード
+        /// SpotDLのロードイベント
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void SpotDL_Load(object sender, EventArgs e)
+        private async void SpotDL_Load(object sender, EventArgs e)
         {
+            //フォームの初期化
+            SetPrgBar();
+            ReadConfigData();
 
             //OutPutフォルダの削除
             CheckOutPutDeleteFiles();
 
             //タイマーを非活性にセット
-            timer1.Enabled = false;
+            Time.Enabled = false;
 
             //RichTextBoxをメッセージプレイヤーにセット
             MessageDisplayer messageDisplayer = new MessageDisplayer(this.ResultText);
+
+            await CheckPythonAndFFmpegAsync();
         }
 
         /// <summary>
@@ -743,7 +655,7 @@ namespace MusicDLWin
         /// <summary>
         /// メニュー終了ボタン押下
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param sender="sender"></param>
         /// <param name="e"></param>
         private void アプリを終了しますToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -765,8 +677,6 @@ namespace MusicDLWin
             help.ShowDialog();
         }
 
-
-
         /// <summary>
         /// ダウンロードボタンクリック
         /// </summary>
@@ -776,7 +686,6 @@ namespace MusicDLWin
         {
             WorksFiles();
         }
-
 
         /// <summary>
         /// 出力先ボタン押下
@@ -795,12 +704,21 @@ namespace MusicDLWin
         /// <param name="e"></param>
         private void MusicDL_FormClosed(object sender, FormClosedEventArgs e)
         {
-            if (MessageBox.Show("MusicDLを強制終了させます。", "終了", MessageBoxButtons.OK, MessageBoxIcon.Information) == DialogResult.OK)
-            {
+            if (this.CloseFlg) {
+                //再起動時
                 ProcessKills("ffmpeg");
                 ProcessKills("spotdl");
                 this.Dispose();
                 Application.Exit();
+            } else {
+                //通常終了時
+                DialogResult result = MessageBox.Show("MusicDLを強制終了させます。", "終了", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (result==DialogResult.OK) {
+                    ProcessKills("ffmpeg");
+                    ProcessKills("spotdl");
+                    this.Dispose();
+                    Application.Exit();
+                }
             };
         }
 
@@ -830,11 +748,11 @@ namespace MusicDLWin
         /// <summary>
         /// タイマーイベント
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param sender="sender"></param>
         /// <param name="e"></param>
-        private void timer1_Tick(object sender, EventArgs e)
+        private void Time_Tick(object sender, EventArgs e)
         {
-            progressBar1.Value = progressBar1.Value > 99 ? progressBar1.Minimum : ++progressBar1.Value;
+            PrgBar.Value = PrgBar.Value > 99 ? PrgBar.Minimum : ++PrgBar.Value;
             Application.DoEvents();
         }
 
@@ -856,7 +774,7 @@ namespace MusicDLWin
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void pythonパス設定ToolStripMenuItem_Click(object sender, EventArgs e)
+        private void Pythonパス設定ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             PythonFinder pythonFinder = new PythonFinder(this.ResultText);
             var pythonDirs = pythonFinder.GetPythonFinder();
@@ -867,43 +785,11 @@ namespace MusicDLWin
         }
 
         /// <summary>
-        /// SpotDL(ffmpeg、pythonのインストールも行う)のインストール
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void 一括ｲﾝｽﾄｰﾙToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (MessageBox.Show("SpotDLをインストールします。よろしいですか？\nPythonとffmpegのインストールも行います。", "確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
-            {
-                //管理者かどうかの確認
-                clsAdmin admin = new clsAdmin();
-                admin.IsAdministrator();
-                bool adm = admin.GetAdmin;
-
-                //管理者権限かどうかのチェック
-                if (adm == false)
-                {
-                    MessageBox.Show("Phytonとffmpegのインストールは管理者権限で行ってください。\n管理者権限に立ち上げ直して下さい。", "確認", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                else
-                {
-                    //再確認を実施
-                    if (MessageBox.Show("一括インストールはセキュリティリスクを伴いますが実行しますか？\n「復元ポイントの作成」の実施をお勧め致します。", "再確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) == DialogResult.OK)
-                    {
-                        //一括インストール
-                        this.SetProgressBar();
-                        this.InstallSpotDL();
-                    }
-                }
-            }
-        }
-
-        /// <summary>
         /// FFmpegパス設定
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void fFmpegパス設定ToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FFmpegパス設定ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FFmpegFinder FFmpegFinder = new FFmpegFinder(this.ResultText);
             var FFmpegDirs = FFmpegFinder.GetFFmpegFinder();
@@ -912,8 +798,26 @@ namespace MusicDLWin
             objIni.GetIniData();
             ShowPathSetting(FFmpegDirs, "FFmpeg");
         }
+
+        /// <summary>
+        /// PythonとSpotDLAPIとFFmpegの一括インストール
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void 一括ｲﾝｽﾄｰﾙToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // PythonとSpotDLAPIとFFmpegの一括インストール
+            if (MessageBox.Show("PythonとSpotDLAPIとFFmpegの一括インストールを行います。よろしいですか？", "確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+            {
+                ProcessKills("ffmpeg");
+                ProcessKills("spotdl");
+            }
+            else
+            {
+                return;
+            }
+            InstallSpotDL();
+        }
+        #endregion
     }
-    #endregion
-
-
 }

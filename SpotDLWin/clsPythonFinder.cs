@@ -54,6 +54,8 @@ namespace MusicDLWin
                         pythonDirs.Add(dir);
                     }
                 }
+                // .venvのパスを追加(仮想環境用)
+                pythonDirs.Add(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".venv", "Scripts"));
             }
             catch (Exception ex){
                 Message.UpdateRichTextBox($"パイソンのディレクトリ取得エラー: {ex.Message}");

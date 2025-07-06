@@ -13,8 +13,8 @@ namespace MusicDLWin
     public class clsIniData
     {
         public string getOutPath { get; set; } = "";
-        public string getPythonPath { get; set; } = "";
-        public string getFFmpegPath { get; set; } = "";
+        public string getPythonPath { get; private set; } = "";
+        public string getFFmpegPath { get; private set; } = "";
 
         /// <summary>
         /// コンストラクタ

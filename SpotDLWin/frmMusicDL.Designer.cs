@@ -36,13 +36,13 @@ namespace MusicDLWin
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.ファイルToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ダウンロードToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.出力先ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.一括ｲﾝｽﾄｰﾙToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.終了ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.アプリを終了しますToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ヘルプToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.試行回数ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.fFmpegパス設定ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.ResultText = new System.Windows.Forms.RichTextBox();
             this.Download = new System.Windows.Forms.Button();
@@ -51,12 +51,11 @@ namespace MusicDLWin
             this.inputTextBox = new System.Windows.Forms.TextBox();
             this.textAlbumName = new System.Windows.Forms.TextBox();
             this.StopButton = new System.Windows.Forms.Button();
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.PrgBar = new System.Windows.Forms.ProgressBar();
             this.picturePlayList = new System.Windows.Forms.PictureBox();
             this.pictureLinkAddress = new System.Windows.Forms.PictureBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.fFmpegパス設定ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.Time = new System.Windows.Forms.Timer(this.components);
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picturePlayList)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureLinkAddress)).BeginInit();
@@ -89,7 +88,6 @@ namespace MusicDLWin
             // 
             this.ファイルToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ダウンロードToolStripMenuItem,
-            this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem,
             this.出力先ToolStripMenuItem,
             this.一括ｲﾝｽﾄｰﾙToolStripMenuItem});
             this.ファイルToolStripMenuItem.Name = "ファイルToolStripMenuItem";
@@ -99,30 +97,21 @@ namespace MusicDLWin
             // ダウンロードToolStripMenuItem
             // 
             this.ダウンロードToolStripMenuItem.Name = "ダウンロードToolStripMenuItem";
-            this.ダウンロードToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.ダウンロードToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
             this.ダウンロードToolStripMenuItem.Text = "ﾀﾞｳﾝﾛｰﾄﾞ";
             this.ダウンロードToolStripMenuItem.Click += new System.EventHandler(this.ダウンロードToolStripMenuItem_Click);
-            // 
-            // ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem
-            // 
-            this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Enabled = false;
-            this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Name = "ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem";
-            this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Text = "Phytonｱｯﾌﾟﾃﾞｰﾄ";
-            this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem.Click += new System.EventHandler(this.ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem_Click);
             // 
             // 出力先ToolStripMenuItem
             // 
             this.出力先ToolStripMenuItem.Name = "出力先ToolStripMenuItem";
-            this.出力先ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.出力先ToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
             this.出力先ToolStripMenuItem.Text = "出力先";
             this.出力先ToolStripMenuItem.Click += new System.EventHandler(this.出力先ToolStripMenuItem_Click);
             // 
             // 一括ｲﾝｽﾄｰﾙToolStripMenuItem
             // 
-            this.一括ｲﾝｽﾄｰﾙToolStripMenuItem.Enabled = false;
             this.一括ｲﾝｽﾄｰﾙToolStripMenuItem.Name = "一括ｲﾝｽﾄｰﾙToolStripMenuItem";
-            this.一括ｲﾝｽﾄｰﾙToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.一括ｲﾝｽﾄｰﾙToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
             this.一括ｲﾝｽﾄｰﾙToolStripMenuItem.Text = "一括ｲﾝｽﾄｰﾙ";
             this.一括ｲﾝｽﾄｰﾙToolStripMenuItem.Click += new System.EventHandler(this.一括ｲﾝｽﾄｰﾙToolStripMenuItem_Click);
             // 
@@ -149,13 +138,21 @@ namespace MusicDLWin
             this.ヘルプToolStripMenuItem.Name = "ヘルプToolStripMenuItem";
             this.ヘルプToolStripMenuItem.Size = new System.Drawing.Size(43, 20);
             this.ヘルプToolStripMenuItem.Text = "設定";
+            this.ヘルプToolStripMenuItem.Visible = false;
             // 
             // 試行回数ToolStripMenuItem
             // 
             this.試行回数ToolStripMenuItem.Name = "試行回数ToolStripMenuItem";
-            this.試行回数ToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+            this.試行回数ToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
             this.試行回数ToolStripMenuItem.Text = "Pythonパス設定";
-            this.試行回数ToolStripMenuItem.Click += new System.EventHandler(this.pythonパス設定ToolStripMenuItem_Click);
+            this.試行回数ToolStripMenuItem.Click += new System.EventHandler(this.Pythonパス設定ToolStripMenuItem_Click);
+            // 
+            // fFmpegパス設定ToolStripMenuItem
+            // 
+            this.fFmpegパス設定ToolStripMenuItem.Name = "fFmpegパス設定ToolStripMenuItem";
+            this.fFmpegパス設定ToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.fFmpegパス設定ToolStripMenuItem.Text = "FFmpegパス設定";
+            this.fFmpegパス設定ToolStripMenuItem.Click += new System.EventHandler(this.FFmpegパス設定ToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
@@ -245,22 +242,17 @@ namespace MusicDLWin
             this.StopButton.UseVisualStyleBackColor = true;
             this.StopButton.Click += new System.EventHandler(this.StopButton_Click);
             // 
-            // timer1
+            // PrgBar
             // 
-            this.timer1.Enabled = true;
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
-            // progressBar1
-            // 
-            this.progressBar1.BackColor = System.Drawing.Color.DarkOliveGreen;
-            this.progressBar1.ForeColor = System.Drawing.Color.Chartreuse;
-            this.progressBar1.Location = new System.Drawing.Point(4, 405);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(728, 21);
-            this.progressBar1.Step = 1;
-            this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
-            this.progressBar1.TabIndex = 30;
-            this.progressBar1.Value = 1;
+            this.PrgBar.BackColor = System.Drawing.Color.DarkOliveGreen;
+            this.PrgBar.ForeColor = System.Drawing.Color.Chartreuse;
+            this.PrgBar.Location = new System.Drawing.Point(4, 405);
+            this.PrgBar.Name = "PrgBar";
+            this.PrgBar.Size = new System.Drawing.Size(728, 21);
+            this.PrgBar.Step = 1;
+            this.PrgBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            this.PrgBar.TabIndex = 30;
+            this.PrgBar.Value = 1;
             // 
             // picturePlayList
             // 
@@ -289,12 +281,9 @@ namespace MusicDLWin
             this.pictureBox1.TabIndex = 33;
             this.pictureBox1.TabStop = false;
             // 
-            // fFmpegパス設定ToolStripMenuItem
+            // Time
             // 
-            this.fFmpegパス設定ToolStripMenuItem.Name = "fFmpegパス設定ToolStripMenuItem";
-            this.fFmpegパス設定ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.fFmpegパス設定ToolStripMenuItem.Text = "FFmpegパス設定";
-            this.fFmpegパス設定ToolStripMenuItem.Click += new System.EventHandler(this.fFmpegパス設定ToolStripMenuItem_Click);
+            this.Time.Tick += new System.EventHandler(this.Time_Tick);
             // 
             // frmMusicDL
             // 
@@ -306,7 +295,7 @@ namespace MusicDLWin
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.pictureLinkAddress);
             this.Controls.Add(this.picturePlayList);
-            this.Controls.Add(this.progressBar1);
+            this.Controls.Add(this.PrgBar);
             this.Controls.Add(this.StopButton);
             this.Controls.Add(this.ResultText);
             this.Controls.Add(this.Download);
@@ -352,15 +341,15 @@ namespace MusicDLWin
         private System.Windows.Forms.TextBox textAlbumName;
         private System.Windows.Forms.Button StopButton;
         private System.Windows.Forms.Timer timer1;
-        private System.Windows.Forms.ToolStripMenuItem ｱｯﾌﾟﾃﾞｰﾄToolStripMenuItem;
         private System.Windows.Forms.PictureBox picturePlayList;
         private System.Windows.Forms.PictureBox pictureLinkAddress;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.ToolStripMenuItem 試行回数ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem 一括ｲﾝｽﾄｰﾙToolStripMenuItem;
-        public System.Windows.Forms.ProgressBar progressBar1;
+        public System.Windows.Forms.ProgressBar PrgBar;
         private System.Windows.Forms.ToolStripMenuItem fFmpegパス設定ToolStripMenuItem;
+        private System.Windows.Forms.Timer Time;
     }
 }
 
