@@ -468,7 +468,6 @@ namespace MusicDLWin
             }
             catch (Exception ex)
             {
-                // --- エラー詳細を表示 ---
                 messageDisplayer.UpdateRichTextBox($"❌ エラー発生: {ex.Message}\n{ex.StackTrace}");
             }
         }
@@ -541,6 +540,7 @@ namespace MusicDLWin
         /// </summary>        
         private async void InstallSpotDL()
         {
+            this.StopButton.Enabled = false;
             clsInstall install = new clsInstall(this.ResultText);
             StartTimerProgresBar();
             bool okngPython = await install.InstallPython();
@@ -566,6 +566,7 @@ namespace MusicDLWin
                 Application.Exit();
                 this.Close();
             }
+            this.StopButton.Enabled = true;
         }
         #endregion
 

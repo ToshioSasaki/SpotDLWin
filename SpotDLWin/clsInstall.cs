@@ -11,10 +11,6 @@ using System.Windows.Forms;
 public class clsInstall : IDisposable
 {
 
-    /// <summary>
-    /// メッセージを表示するためのクラス
-    /// </summary>
-
     #region "メッセージを表示するためのクラス"
     /// <summary>
     /// メッセージを表示するためのクラス
@@ -76,7 +72,7 @@ public class clsInstall : IDisposable
 
         messageDisplayer.UpdateRichTextBox("✅spotdlと依存パッケージのインストールが完了しました。");
 
-        //.venv/Scriptsのパスをiniに保存 ---
+        //.venv/Scriptsのパスをiniに保存
         try
         {
             clsIniData objIni = new clsIniData();

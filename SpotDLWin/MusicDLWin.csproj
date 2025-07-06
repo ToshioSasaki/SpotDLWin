@@ -142,6 +142,9 @@
     <None Include="Files\ffmpeg-6.1.1-essentials_build.zip">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="G:/PROJECT/00complete/SpotDlWin/SpotDLWin/SpotDLWin/\app.manifest">
+      <Link>app.manifest</Link>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
