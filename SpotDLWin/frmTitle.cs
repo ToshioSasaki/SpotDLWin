@@ -14,7 +14,7 @@ namespace MusicDLWin
             InitializeComponent();
             // タイマーの設定
             Timer timer = new Timer();
-            timer.Interval = 1500; // 1.5秒後にメイン画面に遷移
+            timer.Interval = 2000; // 2秒後にメイン画面に遷移
             timer.Tick += new EventHandler(Timer_Tick);
             timer.Start();
         }
@@ -32,6 +32,8 @@ namespace MusicDLWin
             // メイン画面を表示
             frmMusicDL mainForm = new frmMusicDL();
             mainForm.Show();
+
+            this.Visible = false;
         }
 
         /// <summary>
@@ -41,7 +43,8 @@ namespace MusicDLWin
         /// <param name="e"></param>
         private void frmTitle_Load(object sender, EventArgs e)
         {
-            this.Visible = false;
+            this.Visible = true;
         }
+
     }
 }

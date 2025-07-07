@@ -4,10 +4,10 @@
   <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
     <security>
       <requestedPrivileges>
-        <!-- ŠÇ—ŽÒŒ ŒÀ‚ÅŽÀs -->
+        <!-- ï¿½Ç—ï¿½ï¿½ÒŒï¿½ï¿½ï¿½ï¿½ÅŽï¿½ï¿½s -->
         <requestedExecutionLevel level="requireAdministrator" uiAccess="false" />
       </requestedPrivileges>
     </security>
   </trustInfo>
-  <!-- ‘¼‚ÌŠù’è‚Ìƒ}ƒjƒtƒFƒXƒgÝ’è‚ª‚ ‚ê‚Î‚±‚±‚É‹Lq -->
+  <!-- ï¿½ï¿½ï¿½ÌŠï¿½ï¿½ï¿½Ìƒ}ï¿½jï¿½tï¿½Fï¿½Xï¿½gï¿½Ý’è‚ªï¿½ï¿½ï¿½ï¿½Î‚ï¿½ï¿½ï¿½ï¿½É‹Lï¿½q -->
 </assembly>
