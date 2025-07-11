@@ -24,7 +24,7 @@
 
 ![image](https://github.com/aps-sys/SpotDLWin/assets/72966280/f3db9ef2-eea8-498e-81a9-a9f537fcad2b)
 
-**インストールについて。インストーラ（msi）をご利用ください**
+**インストールについて。Releaseのインストーラ（msi）をご利用ください**
 
 
 
