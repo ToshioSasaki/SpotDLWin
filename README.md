@@ -1,4 +1,5 @@
 **SpotDLのWindows・GUI版です**
+(This is a Windows version setup file application of SpotDL, named MusicDL. It runs on Windows 10 and 11.)
 ※MusicDLとしていますがSpotDLのAPIを使っています
 
 1． Spotifyのアーティスト・アルバムを右クリック→シェア→プレイリストのリンクのコピーをします。
@@ -32,6 +33,11 @@
 
 **気にせず、詳細情報をクリックして、実行を押下してください。**
 **※セキュリティには問題ありません。**
+
+After downloading the .msi file, a warning may appear when running the installer because the application is not digitally signed.
+
+Please click "More info" and then click "Run anyway" to proceed.
+※There are no security issues with the application.
 
 
 
