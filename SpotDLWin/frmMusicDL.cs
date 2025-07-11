@@ -372,16 +372,26 @@ namespace MusicDLWin
                 string FFmpegPath = objIni.getFFmpegPath;
                 string pythonExe = Path.Combine(PythonPath, "python.exe");
                 string FFmpegExe = Path.Combine(FFmpegPath, "ffmpeg.exe");
+                int InstallFlg = 0;
 
                 if (!System.IO.File.Exists(pythonExe))
                 {
                     messageDisplayer.UpdateRichTextBox("Pythonが見つかりません。\nパス設定を確認してください。");
-                    return;
+                    InstallFlg++;
                 }
 
                 if (!System.IO.File.Exists(FFmpegExe))
                 {
                     messageDisplayer.UpdateRichTextBox("FFmpegが見つかりません。\nパス設定を確認してください。");
+                    InstallFlg++;
+                }
+
+                if (InstallFlg == 2)
+                {
+                    MessageBox.Show("PythonとSpotDLとFFmpegがインストールされていません。\n一括インストールを実施してください", "確認", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    messageDisplayer.UpdateRichTextBox("PythonとSpotDLとFFmpegがインストールされていません。一括インストールを実施してください");
+                    return;
+                } else if (InstallFlg == 1) {
                     return;
                 }
 
