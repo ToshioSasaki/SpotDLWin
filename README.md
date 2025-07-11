@@ -24,7 +24,14 @@
 
 ![image](https://github.com/aps-sys/SpotDLWin/assets/72966280/f3db9ef2-eea8-498e-81a9-a9f537fcad2b)
 
-**インストールについて。Releaseのインストーラ（msi）をご利用ください**
+**インストールについて。インストーラ（msi）をご利用ください**
+
+<img width="506" height="470" alt="image" src="https://github.com/user-attachments/assets/48bd43c9-f900-4857-bdc9-d0e66a415701" />
+
+**msiダウンロード後、実行すると、証明書の発行ができていないので、インストーラーを実行すると警告がでます**
+
+**気にせず、詳細情報をクリックして、実行を押下してください。**
+**※セキュリティには問題ありません。**
 
 
 
