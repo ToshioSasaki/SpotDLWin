@@ -31,6 +31,21 @@ namespace MusicDLWin
         {
             InitializeComponent();
             messageDisplayer = new MessageDisplayer(this.ResultText);
+            AddUrlTypeLabel();
+        }
+
+        /// <summary>
+        /// URLタイプ表示ラベルを追加
+        /// </summary>
+        private void AddUrlTypeLabel()
+        {
+            Label urlTypeLabel = new Label();
+            urlTypeLabel.Text = "Youtube/Spotify";
+            urlTypeLabel.Font = new System.Drawing.Font("游ゴシック", 7F);
+            urlTypeLabel.ForeColor = System.Drawing.Color.Gray;
+            urlTypeLabel.AutoSize = true;
+            urlTypeLabel.Location = new System.Drawing.Point(3, 163);
+            this.Controls.Add(urlTypeLabel);
         }
         #endregion
 
@@ -141,15 +156,15 @@ namespace MusicDLWin
         }
         #endregion
 
-        #region "MP3ファイルのみ全て削除します。"
+        #region "アルバムフォルダ内のMP3ファイルを削除"
         /// <summary>
-        /// MP3ファイルを全て削除します。
+        /// アルバムフォルダ内のMP3ファイルを削除します。
         /// </summary>
-        private void DeleteMP3OutPutFile()
+        private void DeleteMP3InAlbumFolder(string albumFolder)
         {
-            if (Directory.Exists(textOutDir.Text.Trim()))
+            if (Directory.Exists(albumFolder))
             {
-                string[] mp3Files = Directory.GetFiles(textOutDir.Text.Trim(), "*mp3");
+                string[] mp3Files = Directory.GetFiles(albumFolder, "*.mp3");
                 // 各MP3ファイルを削除
                 foreach (string file in mp3Files)
                 {
@@ -159,7 +174,7 @@ namespace MusicDLWin
                     }
                     catch (IOException e)
                     {
-                        messageDisplayer.UpdateRichTextBox($"出力先のファイルを削除できませんでした。削除できなかったファイル: {file}. Error: {e.Message}");
+                        messageDisplayer.UpdateRichTextBox($"アルバムフォルダのファイルを削除できませんでした。削除できなかったファイル: {file}. Error: {e.Message}");
                     }
                 }
             }
@@ -359,15 +374,19 @@ namespace MusicDLWin
                     return;
                 }
 
-                //MP3ファイルを削除
-                DeleteMP3OutPutFile();
+                // アルバム名フォルダを作成
+                string albumFolder = Path.Combine(outputFolder, textAlbumName.Text.Trim());
+
+                // アルバム名フォルダ内のMP3ファイルを削除
+                DeleteMP3InAlbumFolder(albumFolder);
 
                 //YouTubeから該当ファイルをダウンロード
-                await DownloadPlaylistAsync(playlistUrl, outputFolder);
+                await DownloadPlaylistAsync(playlistUrl, albumFolder);
 
                 //テンプフォルダから正式なフォルダへコピー
                 //bool success = CopyMp3File();
-                string updateMessage = UpdateMp3Properties(textOutDir.Text.Trim(), textAlbumName.Text.Trim()) == "" ? "成功" : "失敗";
+                string albumFolder = Path.Combine(textOutDir.Text.Trim(), textAlbumName.Text.Trim());
+                string updateMessage = UpdateMp3Properties(albumFolder, textAlbumName.Text.Trim()) == "" ? "成功" : "失敗";
 
                 //終了時間の打刻
                 now = DateTime.Now;
