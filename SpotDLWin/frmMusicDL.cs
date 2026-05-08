@@ -867,6 +867,8 @@ namespace MusicDLWin
                 DialogResult result = MessageBox.Show(missingToolsStr + " をインストールします。よろしいですか？", "インストール確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
                 if (result == DialogResult.OK)
                 {
+                    ProcessKills("ffmpeg");
+                    ProcessKills("spotdl");
                     InstallSpotDL();
                 }
                 else
