@@ -1080,17 +1080,17 @@ namespace MusicDLWin
         /// <param name="e"></param>
         private void 一括ｲﾝｽﾄｰﾙToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // PythonとSpotDLAPIとFFmpegの一括インストール
-            if (MessageBox.Show("PythonとSpotDLAPIとFFmpegの一括インストールを行います。よろしいですか？", "確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+            // PythonとSpotDLAPIとFFmpegとyt-dlpの一括インストール
+            if (MessageBox.Show("Python、FFmpeg、SpotDL、yt-dlpの一括インストールを行います。よろしいですか？", "確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
             {
                 ProcessKills("ffmpeg");
                 ProcessKills("spotdl");
+                InstallSpotDL();
             }
             else
             {
                 return;
             }
-            InstallSpotDL();
         }
         #endregion
     }
