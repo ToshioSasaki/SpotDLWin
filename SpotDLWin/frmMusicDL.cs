@@ -42,7 +42,8 @@ namespace MusicDLWin
             Label urlTypeLabel = new Label();
             urlTypeLabel.Text = "Youtube/Spotify";
             urlTypeLabel.Font = new System.Drawing.Font("游ゴシック", 7F);
-            urlTypeLabel.ForeColor = System.Drawing.Color.Gray;
+            urlTypeLabel.ForeColor = System.Drawing.Color.DarkGreen;
+            urlTypeLabel.BackColor = System.Drawing.Color.YellowGreen;
             urlTypeLabel.AutoSize = true;
             urlTypeLabel.Location = new System.Drawing.Point(3, 163);
             this.Controls.Add(urlTypeLabel);
