@@ -822,11 +822,23 @@ namespace MusicDLWin
             bool ytdlpInstalled = false;
             if (pythonInstalled)
             {
-                string ytdlpExe = Path.Combine(pythonPath, "yt-dlp.exe");
-                if (System.IO.File.Exists(ytdlpExe))
+                string pythonExe = Path.Combine(pythonPath, "python.exe");
+                var psi = new ProcessStartInfo("cmd.exe", $"/c \"{pythonExe}\" -m yt_dlp --version")
                 {
-                    messageDisplayer.UpdateRichTextBox("✅ yt-dlpがインストールされています。");
-                    ytdlpInstalled = true;
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                };
+
+                using (var process = Process.Start(psi))
+                {
+                    process?.WaitForExit();
+                    if (process?.ExitCode == 0)
+                    {
+                        messageDisplayer.UpdateRichTextBox("✅ yt-dlpがインストールされています。");
+                        ytdlpInstalled = true;
+                    }
                 }
             }
 
