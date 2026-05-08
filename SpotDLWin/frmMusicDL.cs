@@ -385,7 +385,6 @@ namespace MusicDLWin
 
                 //テンプフォルダから正式なフォルダへコピー
                 //bool success = CopyMp3File();
-                string albumFolder = Path.Combine(textOutDir.Text.Trim(), textAlbumName.Text.Trim());
                 string updateMessage = UpdateMp3Properties(albumFolder, textAlbumName.Text.Trim()) == "" ? "成功" : "失敗";
 
                 //終了時間の打刻
