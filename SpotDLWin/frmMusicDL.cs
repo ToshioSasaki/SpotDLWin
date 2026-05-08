@@ -302,6 +302,29 @@ namespace MusicDLWin
         }
         #endregion
 
+        #region "URL判定"
+        /// <summary>
+        /// URLの種別を判定します
+        /// </summary>
+        /// <param name="url">判定するURL</param>
+        /// <returns>"spotify" または "youtube" または "unknown"</returns>
+        private string GetUrlType(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+                return "unknown";
+
+            url = url.ToLower();
+
+            if (url.Contains("spotify.com"))
+                return "spotify";
+
+            if (url.Contains("youtube.com") || url.Contains("youtu.be"))
+                return "youtube";
+
+            return "unknown";
+        }
+        #endregion
+
         #region "メイン処理"
         /// <summary>
         /// 作業開始・メイン処理
@@ -309,6 +332,10 @@ namespace MusicDLWin
         private async void WorksFiles()
         {
             this.StartTimerProgresBar();
+
+            // PythonとFFmpegのインストールチェック
+            await CheckPythonAndFFmpegAsync();
+
             //ディレクトリチェック
             if (CheckDIr())
             {
@@ -353,7 +380,7 @@ namespace MusicDLWin
         }
 
         /// <summary>
-        /// SPotDL読込み処理：YouTubeから該当ファイルをダウンロード
+        /// ダウンロード読込み処理：URLの種別に応じたダウンロード実行
         /// </summary>
         /// <param name="playlistUrl">リンク</param>
         /// <param name="outputFolder">MP3アウトプットフォルダ</param>
@@ -364,6 +391,36 @@ namespace MusicDLWin
             {
                 Directory.CreateDirectory(outputFolder);
 
+                string urlType = GetUrlType(playlistUrl);
+
+                if (urlType == "spotify")
+                {
+                    messageDisplayer.UpdateRichTextBox("▶ SpotifyのURLを検出しました。SpotDLでダウンロードします...");
+                    await DownloadSpotifyAsync(playlistUrl, outputFolder);
+                }
+                else if (urlType == "youtube")
+                {
+                    messageDisplayer.UpdateRichTextBox("▶ YouTubeのURLを検出しました。yt-dlpでダウンロードします...");
+                    await DownloadYouTubeAsync(playlistUrl, outputFolder);
+                }
+                else
+                {
+                    messageDisplayer.UpdateRichTextBox("❌ サポートされていないURLです。SpotifyまたはYouTubeのURLを入力してください。");
+                }
+            }
+            catch (Exception ex)
+            {
+                messageDisplayer.UpdateRichTextBox($"❌ エラー発生: {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
+        /// <summary>
+        /// Spotify ダウンロード処理
+        /// </summary>
+        private async Task DownloadSpotifyAsync(string playlistUrl, string outputFolder)
+        {
+            try
+            {
                 int ffmpegErrorCount = 0;
 
                 clsIniData objIni = new clsIniData();
@@ -386,12 +443,14 @@ namespace MusicDLWin
                     InstallFlg++;
                 }
 
-                if (InstallFlg == 2)
+                if (InstallFlg > 0)
                 {
-                    MessageBox.Show("PythonとSpotDLとFFmpegがインストールされていません。\n一括インストールを実施してください", "確認", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    messageDisplayer.UpdateRichTextBox("PythonとSpotDLとFFmpegがインストールされていません。一括インストールを実施してください");
-                    return;
-                } else if (InstallFlg == 1) {
+                    messageDisplayer.UpdateRichTextBox("❌ ダウンロード実行前に必要なツールをインストールしてください。");
+                    DialogResult result = MessageBox.Show("PythonまたはFFmpegが見つかりません。一括インストールを実施しますか？", "確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+                    if (result == DialogResult.OK)
+                    {
+                        InstallSpotDL();
+                    }
                     return;
                 }
 
@@ -464,7 +523,7 @@ namespace MusicDLWin
                     );
                 }
 
-                ProcessKills("ffmpeg"); 
+                ProcessKills("ffmpeg");
                 messageDisplayer.UpdateRichTextBox("✅ ダウンロード完了しました。");
 
                 if (ffmpegErrorCount > 0)
@@ -478,7 +537,109 @@ namespace MusicDLWin
             }
             catch (Exception ex)
             {
-                messageDisplayer.UpdateRichTextBox($"❌ エラー発生: {ex.Message}\n{ex.StackTrace}");
+                messageDisplayer.UpdateRichTextBox($"❌ Spotifyダウンロードエラー: {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
+        /// <summary>
+        /// YouTube ダウンロード処理
+        /// </summary>
+        private async Task DownloadYouTubeAsync(string videoUrl, string outputFolder)
+        {
+            try
+            {
+                clsIniData objIni = new clsIniData();
+                objIni.GetIniData();
+                string PythonPath = objIni.getPythonPath;
+                string pythonExe = Path.Combine(PythonPath, "python.exe");
+                int InstallFlg = 0;
+
+                if (!System.IO.File.Exists(pythonExe))
+                {
+                    messageDisplayer.UpdateRichTextBox("Pythonが見つかりません。\nパス設定を確認してください。");
+                    InstallFlg++;
+                }
+
+                if (InstallFlg > 0)
+                {
+                    messageDisplayer.UpdateRichTextBox("❌ ダウンロード実行前に必要なツールをインストールしてください。");
+                    DialogResult result = MessageBox.Show("Pythonが見つかりません。一括インストールを実施しますか？", "確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+                    if (result == DialogResult.OK)
+                    {
+                        InstallSpotDL();
+                    }
+                    return;
+                }
+
+                string arguments = $"/c chcp 65001 > nul && \"{pythonExe}\" -m yt_dlp -f \"bestaudio/best\" --extract-audio --audio-format mp3 --audio-quality 192K -o \"{outputFolder}/%(title)s.%(ext)s\" \"{videoUrl}\"";
+                var psi = new ProcessStartInfo
+                {
+                    FileName = "cmd.exe",
+                    Arguments = arguments,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    StandardOutputEncoding = Encoding.UTF8,
+                    StandardErrorEncoding = Encoding.UTF8,
+                };
+                psi.EnvironmentVariables["PYTHONIOENCODING"] = "utf-8";
+
+                var outputCompletion = new TaskCompletionSource<bool>();
+                var errorCompletion = new TaskCompletionSource<bool>();
+
+                using (var process = new Process { StartInfo = psi })
+                {
+                    process.OutputDataReceived += (s, e) =>
+                    {
+                        if (e.Data == null)
+                        {
+                            outputCompletion.TrySetResult(true);
+                            return;
+                        }
+
+                        if (e.Data.Contains("http"))
+                        {
+                            return;
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(e.Data))
+                            messageDisplayer.UpdateRichTextBox(e.Data);
+                    };
+
+                    process.ErrorDataReceived += (s, e) =>
+                    {
+                        if (e.Data == null)
+                        {
+                            errorCompletion.TrySetResult(true);
+                            return;
+                        }
+
+                        if (e.Data.Contains("http"))
+                        {
+                            return;
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(e.Data))
+                            messageDisplayer.UpdateRichTextBox(e.Data);
+                    };
+
+                    process.Start();
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
+
+                    await Task.WhenAll(
+                        Task.Run(() => process.WaitForExit()),
+                        outputCompletion.Task,
+                        errorCompletion.Task
+                    );
+                }
+
+                messageDisplayer.UpdateRichTextBox("✅ ダウンロード完了しました。");
+            }
+            catch (Exception ex)
+            {
+                messageDisplayer.UpdateRichTextBox($"❌ YouTubeダウンロードエラー: {ex.Message}\n{ex.StackTrace}");
             }
         }
 
@@ -550,9 +711,12 @@ namespace MusicDLWin
         /// </summary>        
         private async void InstallSpotDL()
         {
-            this.StopButton.Enabled = false;
+            this.Invoke(new Action(() =>
+            {
+                this.StopButton.Enabled = false;
+                StartTimerProgresBar();
+            }));
             clsInstall install = new clsInstall(this.ResultText);
-            StartTimerProgresBar();
             bool okngPython = await install.InstallPython();
             if (okngPython)
             {
@@ -564,19 +728,28 @@ namespace MusicDLWin
             {
                 messageDisplayer.UpdateRichTextBox("FFmpegのインストールが完了しました。");
             }
-            StopTimerProgresBar();
+            this.Invoke(new Action(() => StopTimerProgresBar()));
             install.Dispose();
 
             // インストール完了後にMusicDLWin.exeを再起動する
             if ((okngPython || okngFFmpeg) && MessageBox.Show("インストールが完了しました。アプリケーションを再起動しますか？", "再起動確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
             {
+                // 設定ファイルが確実に保存されるよう待機
+                System.Threading.Thread.Sleep(2000);
+
                 this.CloseFlg = true;
                 string exePath = Application.ExecutablePath;
                 Process.Start(exePath);
-                Application.Exit();
                 this.Close();
+                Application.Exit();
+                return;  // 再起動時は以下の処理をスキップ
             }
-            this.StopButton.Enabled = true;
+
+            // フォームがまだ有効な場合のみ UI 更新
+            if (!this.IsDisposed)
+            {
+                this.Invoke(new Action(() => this.StopButton.Enabled = true));
+            }
         }
         #endregion
 
@@ -587,35 +760,108 @@ namespace MusicDLWin
         /// <returns></returns>
         private async Task CheckPythonAndFFmpegAsync()
         {
-            await Task.Run(() =>
+            clsIniData objIni = new clsIniData();
+            objIni.GetIniData();
+
+            messageDisplayer.UpdateRichTextBox("【依存ツール確認中】");
+
+            // Pythonのパスチェック（.venv自動検出）
+            string pythonPath = objIni.getPythonPath;
+            bool pythonInstalled = false;
+
+            if (string.IsNullOrEmpty(pythonPath) || !Directory.Exists(pythonPath))
             {
-                bool isPythonFFmpegInstalled = true;
-                clsIniData objIni = new clsIniData();
-                objIni.GetIniData();
-
-                // Pythonのパスチェック
-                if (string.IsNullOrEmpty(objIni.getPythonPath) || !Directory.Exists(objIni.getPythonPath))
+                string defaultVenvPath = Path.Combine(Application.StartupPath, ".venv", "Scripts");
+                if (Directory.Exists(defaultVenvPath))
                 {
-                    messageDisplayer.UpdateRichTextBox("Pythonのパスが設定されていません。");
-                    isPythonFFmpegInstalled = false;
+                    messageDisplayer.UpdateRichTextBox("▶ .venv を自動検出しました。パスを設定しています...");
+                    pythonPath = defaultVenvPath;
+                    objIni.SetPythonPath(pythonPath);
+                    pythonInstalled = true;
                 }
+            }
+            else
+            {
+                pythonInstalled = true;
+            }
 
-                // FFmpegのパスチェック
-                if (string.IsNullOrEmpty(objIni.getFFmpegPath) || !Directory.Exists(objIni.getFFmpegPath))
-                {
-                    messageDisplayer.UpdateRichTextBox("FFmpegのパスが設定されていません。");
-                    isPythonFFmpegInstalled = false;
-                }
+            if (pythonInstalled)
+            {
+                messageDisplayer.UpdateRichTextBox("✅ Pythonのパス: " + pythonPath);
+            }
+            else
+            {
+                messageDisplayer.UpdateRichTextBox("❌ Pythonがインストールされていません。");
+            }
 
-                if (!isPythonFFmpegInstalled)
+            // FFmpegのパスチェック
+            bool ffmpegInstalled = false;
+            if (!string.IsNullOrEmpty(objIni.getFFmpegPath) && Directory.Exists(objIni.getFFmpegPath))
+            {
+                messageDisplayer.UpdateRichTextBox("✅ FFmpegのパス: " + objIni.getFFmpegPath);
+                ffmpegInstalled = true;
+            }
+            else
+            {
+                messageDisplayer.UpdateRichTextBox("❌ FFmpegがインストールされていません。");
+            }
+
+            // spotdlのインストール確認
+            bool spotdlInstalled = false;
+            if (pythonInstalled)
+            {
+                string spotdlExe = Path.Combine(pythonPath, "spotdl.exe");
+                if (System.IO.File.Exists(spotdlExe))
                 {
-                    DialogResult result = MessageBox.Show("PythonとFFmpegがインストールされていません。インストールしてください", "確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
-                    if (result == DialogResult.OK)
-                    {
-                        InstallSpotDL();
-                    }
+                    messageDisplayer.UpdateRichTextBox("✅ SpotDLがインストールされています。");
+                    spotdlInstalled = true;
                 }
-            });
+            }
+
+            // yt-dlpのインストール確認
+            bool ytdlpInstalled = false;
+            if (pythonInstalled)
+            {
+                string ytdlpExe = Path.Combine(pythonPath, "yt-dlp.exe");
+                if (System.IO.File.Exists(ytdlpExe))
+                {
+                    messageDisplayer.UpdateRichTextBox("✅ yt-dlpがインストールされています。");
+                    ytdlpInstalled = true;
+                }
+            }
+
+            if (pythonInstalled && ffmpegInstalled && spotdlInstalled && ytdlpInstalled)
+            {
+                messageDisplayer.UpdateRichTextBox("✅ すべての依存ツールが確認できました。");
+            }
+            else
+            {
+                // 欠けているツールを表示
+                var missingTools = new List<string>();
+                if (!pythonInstalled) missingTools.Add("Python");
+                if (!ffmpegInstalled) missingTools.Add("FFmpeg");
+                if (!spotdlInstalled) missingTools.Add("SpotDL");
+                if (!ytdlpInstalled) missingTools.Add("yt-dlp");
+
+                messageDisplayer.UpdateRichTextBox("");
+                messageDisplayer.UpdateRichTextBox("【インストールが必要なツール】");
+                foreach (var tool in missingTools)
+                {
+                    messageDisplayer.UpdateRichTextBox("▶ " + tool);
+                }
+                messageDisplayer.UpdateRichTextBox("");
+
+                string missingToolsStr = string.Join("、", missingTools);
+                DialogResult result = MessageBox.Show(missingToolsStr + " をインストールします。よろしいですか？", "インストール確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+                if (result == DialogResult.OK)
+                {
+                    InstallSpotDL();
+                }
+                else
+                {
+                    messageDisplayer.UpdateRichTextBox("⚠ インストール手順をスキップしました。");
+                }
+            }
         }
         #endregion
 
@@ -639,6 +885,11 @@ namespace MusicDLWin
 
             //RichTextBoxをメッセージプレイヤーにセット
             MessageDisplayer messageDisplayer = new MessageDisplayer(this.ResultText);
+
+            // デバッグ情報
+            messageDisplayer.UpdateRichTextBox("【アプリケーション情報】");
+            messageDisplayer.UpdateRichTextBox("実行ディレクトリ: " + Application.StartupPath);
+            messageDisplayer.UpdateRichTextBox("");
 
             await CheckPythonAndFFmpegAsync();
         }
