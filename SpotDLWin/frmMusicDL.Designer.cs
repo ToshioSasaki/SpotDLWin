@@ -56,6 +56,8 @@ namespace MusicDLWin
             this.pictureLinkAddress = new System.Windows.Forms.PictureBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.Time = new System.Windows.Forms.Timer(this.components);
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picturePlayList)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureLinkAddress)).BeginInit();
@@ -285,6 +287,30 @@ namespace MusicDLWin
             // 
             this.Time.Tick += new System.EventHandler(this.Time_Tick);
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.BackColor = System.Drawing.Color.Transparent;
+            this.label1.Font = new System.Drawing.Font("游ゴシック", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label1.ForeColor = System.Drawing.SystemColors.ButtonFace;
+            this.label1.Location = new System.Drawing.Point(218, 386);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(48, 16);
+            this.label1.TabIndex = 34;
+            this.label1.Text = "Spotify";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.BackColor = System.Drawing.Color.Transparent;
+            this.label2.Font = new System.Drawing.Font("游ゴシック", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.label2.ForeColor = System.Drawing.SystemColors.ButtonFace;
+            this.label2.Location = new System.Drawing.Point(212, 370);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(54, 16);
+            this.label2.TabIndex = 35;
+            this.label2.Text = "Youtube";
+            // 
             // frmMusicDL
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -292,6 +318,8 @@ namespace MusicDLWin
             this.BackColor = System.Drawing.SystemColors.Control;
             this.BackgroundImage = global::MusicDLWin.Properties.Resources.MusicDL1;
             this.ClientSize = new System.Drawing.Size(878, 677);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.pictureLinkAddress);
             this.Controls.Add(this.picturePlayList);
@@ -340,7 +368,6 @@ namespace MusicDLWin
         private System.Windows.Forms.TextBox inputTextBox;
         private System.Windows.Forms.TextBox textAlbumName;
         private System.Windows.Forms.Button StopButton;
-        private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.PictureBox picturePlayList;
         private System.Windows.Forms.PictureBox pictureLinkAddress;
         private System.Windows.Forms.PictureBox pictureBox1;
@@ -350,6 +377,8 @@ namespace MusicDLWin
         public System.Windows.Forms.ProgressBar PrgBar;
         private System.Windows.Forms.ToolStripMenuItem fFmpegパス設定ToolStripMenuItem;
         private System.Windows.Forms.Timer Time;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
     }
 }
 

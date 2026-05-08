@@ -1,0 +1,384 @@
+using MusicDLWin;
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.IO.Compression;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using Microsoft.Win32;
+
+public class clsInstall : IDisposable
+{
+
+    #region "メッセージを表示するためのクラス"
+    /// <summary>
+    /// メッセージを表示するためのクラス
+    /// </summary>
+    private MessageDisplayer messageDisplayer { get; set; } = null;
+    #endregion
+
+    #region "現在実行中のアプリケーション（.exe）が存在するディレクトリのパス"
+    /// <summary>
+    /// 現在実行中のアプリケーション（.exe）が存在するディレクトリのパス
+    /// </summary>
+    private string appBasePath { get; set; } = string.Empty;
+    #endregion
+    /// <summary>
+    /// clsInstall クラスのコンストラクタ
+    /// </summary>
+    /// <param name="resultBox"></param>
+    public clsInstall(RichTextBox resultBox)
+    {
+        messageDisplayer = new MessageDisplayer(resultBox);
+        this.appBasePath = AppDomain.CurrentDomain.BaseDirectory;
+    }
+
+    /// <summary>
+    /// Pythonとspotdlを仮想環境にインストールします。
+    /// </summary>
+    /// <returns>true：成功、false：失敗</returns>
+    public async Task<bool> InstallPython()
+    {
+        string venvPath = Path.Combine(appBasePath, ".venv");
+        string pythonExe = Path.Combine(venvPath, "Scripts", "python.exe");
+
+        if (!Directory.Exists(venvPath))
+        {
+            messageDisplayer.UpdateRichTextBox("▶Pythonがシステムにインストールされているか確認中...");
+
+            // システムに Python がインストールされているか確認
+            bool pythonFound = false;
+            string pythonCommand = "python";
+
+            foreach (var cmd in new[] { "python", "python3" })
+            {
+                var checkPython = new ProcessStartInfo("cmd.exe", $"/c {cmd} --version")
+                {
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                };
+
+                using (var process = Process.Start(checkPython))
+                {
+                    process?.WaitForExit();
+                    if (process?.ExitCode == 0)
+                    {
+                        pythonFound = true;
+                        pythonCommand = cmd;
+                        break;
+                    }
+                }
+            }
+
+            if (!pythonFound)
+            {
+                messageDisplayer.UpdateRichTextBox("❌ Pythonがシステムにインストールされていません。");
+                messageDisplayer.UpdateRichTextBox("");
+                messageDisplayer.UpdateRichTextBox("【Pythonをインストールする手順】");
+                messageDisplayer.UpdateRichTextBox("1. https://www.python.org/downloads/ にアクセス");
+                messageDisplayer.UpdateRichTextBox("2. 最新バージョンのPythonをダウンロード");
+                messageDisplayer.UpdateRichTextBox("3. インストーラーを実行");
+                messageDisplayer.UpdateRichTextBox("4. ★重要★ 「Add Python to PATH」にチェック");
+                messageDisplayer.UpdateRichTextBox("5. このアプリケーションを再起動");
+                messageDisplayer.UpdateRichTextBox("");
+                messageDisplayer.UpdateRichTextBox("※ Pythonインストール後、コマンドプロンプトで");
+                messageDisplayer.UpdateRichTextBox("  「python --version」または「python3 --version」を実行して確認してください。");
+                return await Task.FromResult(false);
+            }
+
+            messageDisplayer.UpdateRichTextBox("▶Python仮想環境を作成しています...");
+            var psi = new ProcessStartInfo("cmd.exe", $"/c {pythonCommand} -m venv .venv")
+            {
+                WorkingDirectory = appBasePath,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+
+            string output = "";
+            string error = "";
+            using (var process = new Process { StartInfo = psi })
+            {
+                process.OutputDataReceived += (s, e) =>
+                {
+                    if (!string.IsNullOrEmpty(e.Data)) output += e.Data + "\n";
+                };
+                process.ErrorDataReceived += (s, e) =>
+                {
+                    if (!string.IsNullOrEmpty(e.Data)) error += e.Data + "\n";
+                };
+
+                process.Start();
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+                await Task.Run(() => process.WaitForExit());
+
+                if (process.ExitCode != 0)
+                {
+                    messageDisplayer.UpdateRichTextBox("❌Python仮想環境の作成に失敗しました。");
+                    if (!string.IsNullOrEmpty(error))
+                    {
+                        messageDisplayer.UpdateRichTextBox("エラー詳細: " + error);
+                    }
+                    return await Task.FromResult(false);
+                }
+            }
+        }
+
+        if (!File.Exists(pythonExe))
+        {
+            messageDisplayer.UpdateRichTextBox("❌Pythonの仮想環境が作成できませんでした。");
+            messageDisplayer.UpdateRichTextBox("▶ " + venvPath + " が正しく作成されているか確認してください。");
+            return await Task.FromResult(false);
+        }
+
+        messageDisplayer.UpdateRichTextBox("✅Python仮想環境の作成に成功しました。");
+
+        messageDisplayer.UpdateRichTextBox("▶spotdlと依存パッケージ(spotipy, requests, urllib3)をインストール中...");
+        messageDisplayer.UpdateRichTextBox("▶これには数分かかる場合があります。お待ちください...");
+        await RunCommandAsync(pythonExe, "-m pip install spotdl spotipy requests urllib3", 600);  // 10分のタイムアウト
+
+        messageDisplayer.UpdateRichTextBox("✅spotdlと依存パッケージのインストールが完了しました。");
+
+        //.venv/Scriptsのパスをiniに保存
+        string pythonPath = Path.Combine(appBasePath, ".venv", "Scripts");
+        try
+        {
+            clsIniData objIni = new clsIniData();
+            objIni.SetPythonPath(pythonPath);
+            messageDisplayer.UpdateRichTextBox("✅Pythonパスを保存しました: " + pythonPath);
+        }
+        catch (Exception ex)
+        {
+            messageDisplayer.UpdateRichTextBox("❌Pythonパスの保存に失敗: " + ex.Message);
+        }
+
+        // ユーザー PATH に Python パスを追加
+        messageDisplayer.UpdateRichTextBox("▶ PythonのパスをWindowsユーザーPATHに追加しています...");
+        AddToUserPath(pythonPath);
+
+        return await Task.FromResult(true);
+    }
+
+    /// <summary>
+    /// FFmpegをダウンロードして仮想環境に展開します。
+    /// </summary>
+    /// <returns>true：成功、false：失敗</returns>
+    public async Task<bool> InstallFFmpeg()
+    {
+        string ffmpegUrl = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip";
+        string zipPath = Path.Combine(appBasePath, "ffmpeg.zip");
+        string ffmpegExtractPath = Path.Combine(appBasePath, "ffmpeg");
+
+        try
+        {
+            messageDisplayer.UpdateRichTextBox("▶ FFmpegのダウンロードを開始します...");
+            messageDisplayer.UpdateRichTextBox("▶ ダウンロード中です。少しお待ちください...");
+
+            try
+            {
+                using (WebClient client = new WebClient())
+                {
+                    await Task.Run(() =>
+                    {
+                        client.DownloadFile(ffmpegUrl, zipPath);
+                    });
+                }
+                messageDisplayer.UpdateRichTextBox("✅FFmpegのダウンロードが完了しました。");
+            }
+            catch (WebException webEx)
+            {
+                messageDisplayer.UpdateRichTextBox("❌FFmpegのダウンロードに失敗しました。");
+                messageDisplayer.UpdateRichTextBox("▶ エラー: " + webEx.Message);
+                messageDisplayer.UpdateRichTextBox("▶ インターネット接続を確認してください。");
+                return await Task.FromResult(false);
+            }
+            catch (Exception dlEx)
+            {
+                messageDisplayer.UpdateRichTextBox("❌FFmpegのダウンロードに失敗しました。");
+                messageDisplayer.UpdateRichTextBox("▶ エラー: " + dlEx.Message);
+                return await Task.FromResult(false);
+            }
+
+            if (!File.Exists(zipPath))
+            {
+                messageDisplayer.UpdateRichTextBox("❌FFmpegのダウンロードファイルが見つかりません。");
+                return await Task.FromResult(false);
+            }
+
+            if (Directory.Exists(ffmpegExtractPath))
+                Directory.Delete(ffmpegExtractPath, true);
+
+            messageDisplayer.UpdateRichTextBox("▶FFmpegを展開中...");
+            await Task.Run(() => ZipFile.ExtractToDirectory(zipPath, ffmpegExtractPath));
+
+            string[] ffmpegExePath = Directory.GetFiles(ffmpegExtractPath, "ffmpeg.exe", SearchOption.AllDirectories);
+            if (ffmpegExePath.Length > 0)
+            {
+                string dest = Path.Combine(ffmpegExtractPath, "ffmpeg.exe");
+                File.Copy(ffmpegExePath[0], dest, true);
+                messageDisplayer.UpdateRichTextBox("✅FFmpegの展開が完了しました。");
+
+                // ダウンロード済みのzipファイルを削除
+                try
+                {
+                    if (File.Exists(zipPath))
+                        File.Delete(zipPath);
+                }
+                catch
+                {
+                    // 削除失敗は無視
+                }
+
+                // ffmpegディレクトリのパスをiniに保存
+                try
+                {
+                    clsIniData objIni = new clsIniData();
+                    objIni.SetFFmpegPath(ffmpegExtractPath);
+                    messageDisplayer.UpdateRichTextBox("✅FFmpegパスを保存しました: " + ffmpegExtractPath);
+                }
+                catch (Exception ex)
+                {
+                    messageDisplayer.UpdateRichTextBox("❌FFmpegパスの保存に失敗: " + ex.Message);
+                    return await Task.FromResult(false);
+                }
+
+                // ユーザー PATH に FFmpeg パスを追加
+                messageDisplayer.UpdateRichTextBox("▶ FFmpegのパスをWindowsユーザーPATHに追加しています...");
+                AddToUserPath(ffmpegExtractPath);
+
+                return await Task.FromResult(true);
+            }
+            else
+            {
+                messageDisplayer.UpdateRichTextBox("❌FFmpeg.exeが見つかりませんでした。");
+                messageDisplayer.UpdateRichTextBox("▶ ダウンロードしたZIPファイルが破損している可能性があります。");
+                return await Task.FromResult(false);
+            }
+        }
+        catch (Exception ex)
+        {
+            messageDisplayer.UpdateRichTextBox("❌FFmpegのインストールに失敗しました: " + ex.Message);
+            return await Task.FromResult(false);
+        }
+    }
+
+    /// <summary>
+    /// コマンドを実行して、標準出力とエラー出力をRichTextBoxに表示します。
+    /// </summary>
+    /// <param name="exePath"></param>
+    /// <param name="args"></param>
+    /// <param name="timeoutSeconds">タイムアウト時間（秒）。0 の場合は無制限</param>
+    /// <summary>
+    private async Task RunCommandAsync(string exePath, string args, int timeoutSeconds = 300)
+    {
+        var psi = new ProcessStartInfo("cmd.exe", $"/c \"{exePath}\" {args}")
+        {
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            CreateNoWindow = true
+        };
+
+        using (var process = new Process { StartInfo = psi, EnableRaisingEvents = true })
+        {
+            var outputTcs = new TaskCompletionSource<bool>();
+            var errorTcs = new TaskCompletionSource<bool>();
+
+            process.OutputDataReceived += (s, e) =>
+            {
+                if (e.Data == null) outputTcs.TrySetResult(true);
+                else if (!string.IsNullOrWhiteSpace(e.Data)) messageDisplayer.UpdateRichTextBox(e.Data, true);
+            };
+
+            process.ErrorDataReceived += (s, e) =>
+            {
+                if (e.Data == null) errorTcs.TrySetResult(true);
+                else if (!string.IsNullOrWhiteSpace(e.Data)) messageDisplayer.UpdateRichTextBox(e.Data, true);
+            };
+
+            process.Start();
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
+
+            try
+            {
+                if (timeoutSeconds > 0)
+                {
+                    using (var cts = new System.Threading.CancellationTokenSource(timeoutSeconds * 1000))
+                    {
+                        await Task.WhenAll(
+                            outputTcs.Task,
+                            errorTcs.Task,
+                            Task.Run(() => process.WaitForExit(), cts.Token)
+                        );
+                    }
+                }
+                else
+                {
+                    await Task.WhenAll(outputTcs.Task, errorTcs.Task, Task.Run(() => process.WaitForExit()));
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                messageDisplayer.UpdateRichTextBox("⚠ コマンドがタイムアウト (" + timeoutSeconds + "秒) しました。プロセスを終了します...");
+                if (!process.HasExited)
+                {
+                    process.Kill();
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// ユーザー PATH に指定されたパスを追加します（存在しない場合のみ）
+    /// </summary>
+    /// <param name="pathToAdd">追加するパス</param>
+    /// <returns>追加成功時 true、既に存在する場合も true、失敗時 false</returns>
+    private bool AddToUserPath(string pathToAdd)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(pathToAdd) || !Directory.Exists(pathToAdd))
+            {
+                return false;
+            }
+
+            // ユーザー環境変数を取得
+            string currentPath = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User) ?? string.Empty;
+
+            // 既に PATH に含まれているかチェック
+            if (currentPath.Contains(pathToAdd))
+            {
+                messageDisplayer.UpdateRichTextBox("▶ " + pathToAdd + " は既にPATHに含まれています。");
+                return true;
+            }
+
+            // PATH に追加
+            string newPath = currentPath + ";" + pathToAdd;
+            Environment.SetEnvironmentVariable("PATH", newPath, EnvironmentVariableTarget.User);
+
+            messageDisplayer.UpdateRichTextBox("✅ PATHに追加しました: " + pathToAdd);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            messageDisplayer.UpdateRichTextBox("❌ PATHへの追加に失敗: " + ex.Message);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// リソースを解放します。
+    /// </summary>
+    public void Dispose()
+    {
+    }
+}
+
+
