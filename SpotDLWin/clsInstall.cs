@@ -131,6 +131,13 @@ public class clsInstall : IDisposable
 
         messageDisplayer.UpdateRichTextBox("✅spotdlと依存パッケージのインストールが完了しました。");
 
+        // spotdlのバージョン確認
+        string spotdlVersion = await GetPackageVersion(pythonExe, "spotdl");
+        if (!string.IsNullOrEmpty(spotdlVersion))
+        {
+            messageDisplayer.UpdateRichTextBox("✅最新のspotdl（v" + spotdlVersion + "）がインストールされています。");
+        }
+
         messageDisplayer.UpdateRichTextBox("▶yt-dlpをインストール中...");
         messageDisplayer.UpdateRichTextBox("▶これには数分かかる場合があります。お待ちください...");
         await RunCommandAsync(pythonExe, "-m pip install yt-dlp", 600);
@@ -469,6 +476,83 @@ public class clsInstall : IDisposable
     }
 
     /// <summary>
+    /// 指定されたPythonパッケージのバージョンを取得します
+    /// </summary>
+    private async Task<string> GetPackageVersion(string pythonExe, string packageName)
+    {
+        try
+        {
+            string output = "";
+            var psi = new ProcessStartInfo(pythonExe, "-m pip show " + packageName)
+            {
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+
+            using (var process = new Process { StartInfo = psi })
+            {
+                process.OutputDataReceived += (s, e) =>
+                {
+                    if (!string.IsNullOrEmpty(e.Data)) output += e.Data + "\n";
+                };
+
+                process.Start();
+                process.BeginOutputReadLine();
+                await Task.Run(() => process.WaitForExit());
+
+                if (process.ExitCode == 0 && !string.IsNullOrEmpty(output))
+                {
+                    foreach (var line in output.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        if (line.StartsWith("Version:"))
+                        {
+                            return line.Replace("Version:", "").Trim();
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            messageDisplayer.UpdateRichTextBox("⚠ バージョン取得エラー: " + ex.Message);
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// spotdlのバージョンをチェックして、アップデートが必要か判定
+    /// </summary>
+    public async Task<bool> CheckSpotdlVersionAsync()
+    {
+        string venvPath = Path.Combine(appBasePath, ".venv");
+        string pythonExe = Path.Combine(venvPath, "Scripts", "python.exe");
+
+        if (!File.Exists(pythonExe))
+        {
+            return false;
+        }
+
+        try
+        {
+            string currentVersion = await GetPackageVersion(pythonExe, "spotdl");
+            if (string.IsNullOrEmpty(currentVersion))
+            {
+                return false;
+            }
+
+            messageDisplayer.UpdateRichTextBox("▶ 現在のspotdlバージョン: v" + currentVersion);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+
+    /// <summary>
     /// ユーザー PATH に指定されたパスを追加します（存在しない場合のみ）
     /// </summary>
     /// <param name="pathToAdd">追加するパス</param>
@@ -509,6 +593,26 @@ public class clsInstall : IDisposable
     /// <summary>
     /// リソースを解放します。
     /// </summary>
+
+    /// <summary>
+    /// spotdlを最新版にアップデートします
+    /// </summary>
+    public async Task<bool> UpdateSpotdl(string pythonExe)
+    {
+        try
+        {
+            messageDisplayer.UpdateRichTextBox("▶spotdlを最新版にアップデート中...");
+            await RunCommandAsync(pythonExe, "-m pip install --upgrade spotdl", 300);
+            messageDisplayer.UpdateRichTextBox("✅spotdlのアップデートが完了しました。");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            messageDisplayer.UpdateRichTextBox("❌spotdlのアップデートに失敗しました: " + ex.Message);
+            return false;
+        }
+    }
+
     public void Dispose()
     {
     }

@@ -19,11 +19,12 @@ namespace MusicDLWin
     {
 
         #region "各プロパティ"
-        /// <summary>  
-        /// 各プロパティ  
+        /// <summary>
+        /// 各プロパティ
         /// </summary
         private MessageDisplayer messageDisplayer { get; set; } = null;
         private bool CloseFlg { get; set; } = false; // フォームのクローズフラグ
+        private bool _isDownloading { get; set; } = false; // ダウンロード処理中フラグ
         #endregion
 
         #region "コンストラクタ"
@@ -347,55 +348,71 @@ namespace MusicDLWin
         /// </summary>
         private async void WorksFiles()
         {
-            this.StartTimerProgresBar();
-
-            // PythonとFFmpegのインストールチェック
-            await CheckPythonAndFFmpegAsync();
-
-            //ディレクトリチェック
-            if (CheckDIr())
+            if (_isDownloading)
             {
-                //ローカルファイルのMP3ファイルをすべて消去する
-                DeleteMP3LocalFile();
-
-                //作業開始
-                DateTime now = DateTime.Now;
-                string sYmd = now.Year + "/" + now.Month + "/" + now.Day + " ";
-                string sHms = now.Hour + ":" + now.Minute + ":" + now.Second;
-                messageDisplayer.UpdateRichTextBox("■ダウンロード作業を開始します。(" + sYmd + sHms + ")■");
-
-                // SpotDLのインストールを確認
-                string playlistTitle = this.textAlbumName.Text.Trim();
-                string playlistUrl = this.inputTextBox.Text.Trim();
-                string outputFolder = textOutDir.Text.Trim().Replace('¥', '\\').TrimEnd('\\');
-
-                if (string.IsNullOrWhiteSpace(playlistUrl) || string.IsNullOrWhiteSpace(outputFolder))
-                {
-                    messageDisplayer.UpdateRichTextBox("プレイリストURLと出力先フォルダを入力してください。");
-                    return;
-                }
-
-                // アルバム名フォルダを作成
-                string albumFolder = Path.Combine(outputFolder, textAlbumName.Text.Trim());
-
-                // アルバム名フォルダ内のMP3ファイルを削除
-                DeleteMP3InAlbumFolder(albumFolder);
-
-                //YouTubeから該当ファイルをダウンロード
-                await DownloadPlaylistAsync(playlistUrl, albumFolder);
-
-                //テンプフォルダから正式なフォルダへコピー
-                //bool success = CopyMp3File();
-                string updateMessage = UpdateMp3Properties(albumFolder, textAlbumName.Text.Trim()) == "" ? "成功" : "失敗";
-
-                //終了時間の打刻
-                now = DateTime.Now;
-                sYmd = now.Year + "/" + now.Month + "/" + now.Day + " ";
-                sHms = now.Hour + ":" + now.Minute + ":" + now.Second;
-                string Argument = "■ダウンロード終了 ファイルアップデート(" + updateMessage + ")" + sYmd + sHms;
-                messageDisplayer.UpdateRichTextBox(Argument);
+                messageDisplayer.UpdateRichTextBox("⚠ ダウンロード処理が実行中です。完了をお待ちください。");
+                return;
             }
-            this.StopTimerProgresBar();
+
+            _isDownloading = true;
+            this.Download.Enabled = false;
+            try
+            {
+                this.StartTimerProgresBar();
+
+                // PythonとFFmpegのインストールチェック
+                await CheckPythonAndFFmpegAsync();
+
+                //ディレクトリチェック
+                if (CheckDIr())
+                {
+                    //ローカルファイルのMP3ファイルをすべて消去する
+                    DeleteMP3LocalFile();
+
+                    //作業開始
+                    DateTime now = DateTime.Now;
+                    string sYmd = now.Year + "/" + now.Month + "/" + now.Day + " ";
+                    string sHms = now.Hour + ":" + now.Minute + ":" + now.Second;
+                    messageDisplayer.UpdateRichTextBox("■ダウンロード作業を開始します。(" + sYmd + sHms + ")■");
+
+                    // SpotDLのインストールを確認
+                    string playlistTitle = this.textAlbumName.Text.Trim();
+                    string playlistUrl = this.inputTextBox.Text.Trim();
+                    string outputFolder = textOutDir.Text.Trim().Replace('¥', '\\').TrimEnd('\\');
+
+                    if (string.IsNullOrWhiteSpace(playlistUrl) || string.IsNullOrWhiteSpace(outputFolder))
+                    {
+                        messageDisplayer.UpdateRichTextBox("プレイリストURLと出力先フォルダを入力してください。");
+                        return;
+                    }
+
+                    // アルバム名フォルダを作成
+                    string albumFolder = Path.Combine(outputFolder, textAlbumName.Text.Trim());
+
+                    // アルバム名フォルダ内のMP3ファイルを削除
+                    DeleteMP3InAlbumFolder(albumFolder);
+
+                    //YouTubeから該当ファイルをダウンロード
+                    await DownloadPlaylistAsync(playlistUrl, albumFolder);
+
+                    //テンプフォルダから正式なフォルダへコピー
+                    //bool success = CopyMp3File();
+                    string updateMessage = UpdateMp3Properties(albumFolder, textAlbumName.Text.Trim()) == "" ? "成功" : "失敗";
+
+                    //終了時間の打刻
+                    now = DateTime.Now;
+                    sYmd = now.Year + "/" + now.Month + "/" + now.Day + " ";
+                    sHms = now.Hour + ":" + now.Minute + ":" + now.Second;
+                    string Argument = "■ダウンロード終了 ファイルアップデート(" + updateMessage + ")" + sYmd + sHms;
+                    messageDisplayer.UpdateRichTextBox(Argument);
+                }
+            }
+            finally
+            {
+                _isDownloading = false;
+                this.Download.Enabled = true;
+                this.StopTimerProgresBar();
+            }
         }
 
         /// <summary>
@@ -434,46 +451,65 @@ namespace MusicDLWin
         }
 
         /// <summary>
-        /// Spotify ダウンロード処理
+        /// SpotifyのURLをSpotDLでダウンロードします。
         /// </summary>
+        /// <param name="playlistUrl">プレイリストURL</param>
+        /// <param name="outputFolder">出力先フォルダ</param>
+        /// <returns></returns>
         private async Task DownloadSpotifyAsync(string playlistUrl, string outputFolder)
         {
             try
             {
                 int ffmpegErrorCount = 0;
+                bool rateLimitError = false;
+                bool downloadSuccess = false;
 
                 clsIniData objIni = new clsIniData();
                 objIni.GetIniData();
+
                 string PythonPath = objIni.getPythonPath;
                 string FFmpegPath = objIni.getFFmpegPath;
                 string pythonExe = Path.Combine(PythonPath, "python.exe");
                 string FFmpegExe = Path.Combine(FFmpegPath, "ffmpeg.exe");
-                int InstallFlg = 0;
+
+                int installFlg = 0;
 
                 if (!System.IO.File.Exists(pythonExe))
                 {
                     messageDisplayer.UpdateRichTextBox("Pythonが見つかりません。\nパス設定を確認してください。");
-                    InstallFlg++;
+                    installFlg++;
                 }
 
                 if (!System.IO.File.Exists(FFmpegExe))
                 {
                     messageDisplayer.UpdateRichTextBox("FFmpegが見つかりません。\nパス設定を確認してください。");
-                    InstallFlg++;
+                    installFlg++;
                 }
 
-                if (InstallFlg > 0)
+                if (installFlg > 0)
                 {
                     messageDisplayer.UpdateRichTextBox("❌ ダウンロード実行前に必要なツールをインストールしてください。");
-                    DialogResult result = MessageBox.Show("PythonまたはFFmpegが見つかりません。一括インストールを実施しますか？", "確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+
+                    DialogResult result = MessageBox.Show(
+                        "PythonまたはFFmpegが見つかりません。一括インストールを実施しますか？",
+                        "確認",
+                        MessageBoxButtons.OKCancel,
+                        MessageBoxIcon.Question);
+
                     if (result == DialogResult.OK)
                     {
                         InstallSpotDL();
                     }
+
                     return;
                 }
 
-                string arguments = $"/c chcp 65001 > nul && \"{pythonExe}\" -m spotdl \"{playlistUrl}\" --output \"{outputFolder}\" --ffmpeg \"{FFmpegExe}\" --bitrate 192k";
+                // 通常は認証なしで実行する
+                // ※ --user-auth / --no-cache は自動付与しない
+                string arguments =
+                    $"/c chcp 65001 > nul && \"{pythonExe}\" -m spotdl download \"{playlistUrl}\" " +
+                    $"--output \"{outputFolder}\" --ffmpeg \"{FFmpegExe}\" --bitrate 192k";
+
                 var psi = new ProcessStartInfo
                 {
                     FileName = "cmd.exe",
@@ -485,10 +521,13 @@ namespace MusicDLWin
                     StandardOutputEncoding = Encoding.UTF8,
                     StandardErrorEncoding = Encoding.UTF8,
                 };
+
                 psi.EnvironmentVariables["PYTHONIOENCODING"] = "utf-8";
 
                 var outputCompletion = new TaskCompletionSource<bool>();
                 var errorCompletion = new TaskCompletionSource<bool>();
+
+                int exitCode = -1;
 
                 using (var process = new Process { StartInfo = psi })
                 {
@@ -500,13 +539,10 @@ namespace MusicDLWin
                             return;
                         }
 
-                        if (e.Data.Contains("http"))
-                        {
-                            return;
-                        }
-
                         if (!string.IsNullOrWhiteSpace(e.Data))
+                        {
                             messageDisplayer.UpdateRichTextBox(e.Data);
+                        }
                     };
 
                     process.ErrorDataReceived += (s, e) =>
@@ -517,18 +553,31 @@ namespace MusicDLWin
                             return;
                         }
 
-                        if (e.Data.Contains("http"))
+                        string data = e.Data;
+
+                        if (data.Contains("rate/request limit") || data.Contains("Retry will occur after"))
                         {
-                            return;
+                            rateLimitError = true;
+
+                            string waitMsg = ParseRetryWaitMessage(data);
+                            messageDisplayer.UpdateRichTextBox(
+                                $"⚠ SpotDL APIのレート制限に達しました。{waitMsg}",
+                                true);
+
+                            messageDisplayer.UpdateRichTextBox(
+                                "短時間で再実行すると制限が長引く可能性があります。時間を空けてから再試行してください。",
+                                true);
                         }
 
-                        if (e.Data.Contains("FFmpegError"))
+                        if (data.Contains("FFmpegError"))
                         {
                             ffmpegErrorCount++;
                         }
 
-                        if (!string.IsNullOrWhiteSpace(e.Data))
-                            messageDisplayer.UpdateRichTextBox(e.Data);
+                        if (!string.IsNullOrWhiteSpace(data))
+                        {
+                            messageDisplayer.UpdateRichTextBox(data);
+                        }
                     };
 
                     process.Start();
@@ -540,15 +589,42 @@ namespace MusicDLWin
                         outputCompletion.Task,
                         errorCompletion.Task
                     );
+
+                    exitCode = process.ExitCode;
                 }
 
                 ProcessKills("ffmpeg");
-                messageDisplayer.UpdateRichTextBox("✅ ダウンロード完了しました。");
+
+                if (rateLimitError)
+                {
+                    messageDisplayer.UpdateRichTextBox("");
+                    messageDisplayer.UpdateRichTextBox("❌ ダウンロードを中止しました。SpotDL側の取得制限が解除されてから再実行してください。", true);
+                    return;
+                }
+
+                if (exitCode == 0)
+                {
+                    downloadSuccess = true;
+                }
+
+                if (downloadSuccess)
+                {
+                    messageDisplayer.UpdateRichTextBox("✅ ダウンロード完了しました。");
+                }
+                else
+                {
+                    messageDisplayer.UpdateRichTextBox($"❌ ダウンロードに失敗しました。終了コード: {exitCode}", true);
+                }
 
                 if (ffmpegErrorCount > 0)
                 {
-                    DialogResult result = MessageBox.Show("FFmpegエラーが発生しています。今直ぐにFFmpegのキャッシュをクリアしますか？", "確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation);
-                    if (DialogResult.OK == result)
+                    DialogResult result = MessageBox.Show(
+                        "FFmpegエラーが発生しています。今直ぐにFFmpegのキャッシュをクリアしますか？",
+                        "確認",
+                        MessageBoxButtons.OKCancel,
+                        MessageBoxIcon.Exclamation);
+
+                    if (result == DialogResult.OK)
                     {
                         ClearffmpegError();
                     }
@@ -560,8 +636,6 @@ namespace MusicDLWin
             }
         }
 
-        /// <summary>
-        /// YouTube ダウンロード処理
         /// </summary>
         private async Task DownloadYouTubeAsync(string videoUrl, string outputFolder)
         {
@@ -686,6 +760,23 @@ namespace MusicDLWin
             }
         }
 
+        /// <summary>
+        /// Retry will occur after: XXX s から待機時間を抽出して日本語メッセージに変換
+        /// </summary>
+        private string ParseRetryWaitMessage(string errorLine)
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(
+                errorLine, @"Retry will occur after:\s*(\d+)\s*s");
+            if (match.Success && int.TryParse(match.Groups[1].Value, out int seconds))
+            {
+                int hours = seconds / 3600;
+                int mins = (seconds % 3600) / 60;
+                if (hours > 0) return $"約{hours}時間後に再試行できます。";
+                if (mins > 0) return $"約{mins}分後に再試行できます。";
+                return $"{seconds}秒後に再試行できます。";
+            }
+            return "しばらく時間をおいてから再試行してください。";
+        }
 
         /// <summary>
         /// MP3のプロパティにアルバム名とトラック番号を付け加える
@@ -893,6 +984,43 @@ namespace MusicDLWin
                 else
                 {
                     messageDisplayer.UpdateRichTextBox("⚠ インストール手順をスキップしました。");
+                }
+                // spotdlのバージョンチェック（すべてのツールがインストール済みの場合のみ）
+                if (pythonInstalled && ffmpegInstalled && spotdlInstalled && ytdlpInstalled)
+                {
+                    messageDisplayer.UpdateRichTextBox("");
+                    messageDisplayer.UpdateRichTextBox("【spotdlバージョン確認】");
+
+                    clsInstall install = new clsInstall(this.ResultText);
+                    bool versionCheckResult = await install.CheckSpotdlVersionAsync();
+                    install.Dispose();
+
+                    if (versionCheckResult)
+                    {
+                        // spotdlの最新版をインストール確認
+                        DialogResult updateResult = MessageBox.Show("spotdlに最新版があります。インストールしますか？", "spotdlアップデート確認", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+                        if (updateResult == DialogResult.OK)
+                        {
+                            messageDisplayer.UpdateRichTextBox("");
+                            messageDisplayer.UpdateRichTextBox("▶spotdlを最新版にアップデートしています...");
+                            ProcessKills("spotdl");
+
+                            clsInstall updateInstall = new clsInstall(this.ResultText);
+                            string pythonPathvenv = Path.Combine(Application.StartupPath, ".venv", "Scripts");
+                            string pythonExe = Path.Combine(pythonPathvenv, "python.exe");
+
+                            if (System.IO.File.Exists(pythonExe))
+                            {
+                                await updateInstall.UpdateSpotdl(pythonExe);
+                                messageDisplayer.UpdateRichTextBox("✅spotdlをアップデートしました。");
+                            }
+                            updateInstall.Dispose();
+                        }
+                    }
+                    else
+                    {
+                        messageDisplayer.UpdateRichTextBox("⚠ spotdlのバージョン確認ができませんでした。");
+                    }
                 }
             }
         }
