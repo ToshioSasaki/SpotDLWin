@@ -63,5 +63,25 @@ namespace MusicDLWin
             MusicDLWin.Properties.Settings.Default.FFmpegPath = path;
             MusicDLWin.Properties.Settings.Default.Save();
         }
+
+        /// <summary>
+        /// 試行回数を保存します。
+        /// </summary>
+        /// <param name="kaisuu">試行回数</param>
+        public void SetKaisuu(int kaisuu)
+        {
+            MusicDLWin.Properties.Settings.Default.Kaisuu = kaisuu;
+            MusicDLWin.Properties.Settings.Default.Save();
+        }
+
+        /// <summary>
+        /// タイムアウトを保存します。
+        /// </summary>
+        /// <param name="timeOut">タイムアウト(ms)</param>
+        public void SetTimeOut(int timeOut)
+        {
+            MusicDLWin.Properties.Settings.Default.TimeOut = timeOut;
+            MusicDLWin.Properties.Settings.Default.Save();
+        }
     }
 }

@@ -35,7 +35,7 @@ namespace MusicDLWin
             ProcessStartInfo startInfo = new ProcessStartInfo()
             {
                 FileName = $"{PythonPath}\\python.exe",
-                Arguments = "-m pip install --user spotdl",
+                Arguments = "-m pip install -U spotdl",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,

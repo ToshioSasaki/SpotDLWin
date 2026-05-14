@@ -58,5 +58,53 @@ namespace MusicDLWin.Properties {
                 this["FFmpegPath"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool SpotifyUserAuth {
+            get {
+                return ((bool)(this["SpotifyUserAuth"]));
+            }
+            set {
+                this["SpotifyUserAuth"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LimitTime {
+            get {
+                return ((string)(this["LimitTime"]));
+            }
+            set {
+                this["LimitTime"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int Kaisuu {
+            get {
+                return ((int)(this["Kaisuu"]));
+            }
+            set {
+                this["Kaisuu"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int TimeOut {
+            get {
+                return ((int)(this["TimeOut"]));
+            }
+            set {
+                this["TimeOut"] = value;
+            }
+        }
     }
 }

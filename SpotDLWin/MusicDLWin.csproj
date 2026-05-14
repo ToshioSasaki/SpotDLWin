@@ -39,7 +39,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+    <GenerateResourceUsePreserializedResources>false</GenerateResourceUsePreserializedResources>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -49,7 +49,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+    <GenerateResourceUsePreserializedResources>false</GenerateResourceUsePreserializedResources>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>download-arrow.ico</ApplicationIcon>
@@ -116,49 +116,57 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="clsFFmpegFinder.cs" />
-    <Compile Include="clsProgressBarDisplay.cs" />
-    <Compile Include="clsAdmin.cs" />
-    <Compile Include="clsInstall.cs" />
-    <Compile Include="clsFileFolder.cs" />
-    <Compile Include="clsMessageDisPlayer.cs" />
-    <Compile Include="clsPython.cs" />
-    <Compile Include="clsPythonFinder.cs" />
-    <Compile Include="frmHelp.cs">
+    <Compile Include="Services\clsFFmpegFinder.cs" />
+    <Compile Include="Services\clsProgressBarDisplay.cs" />
+    <Compile Include="Services\clsAdmin.cs" />
+    <Compile Include="Services\clsInstall.cs" />
+    <Compile Include="Services\clsFileFolder.cs" />
+    <Compile Include="Services\clsMessageDisPlayer.cs" />
+    <Compile Include="Services\clsPython.cs" />
+    <Compile Include="Services\clsPythonFinder.cs" />
+    <Compile Include="Models\DownloadResult.cs" />
+    <Compile Include="Models\SpotdlLimitState.cs" />
+    <Compile Include="Forms\frmHelp.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmHelp.Designer.cs">
+    <Compile Include="Forms\frmHelp.Designer.cs">
       <DependentUpon>frmHelp.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmMusicDL.cs">
+    <Compile Include="Forms\frmMusicDL.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmMusicDL.Designer.cs">
+    <Compile Include="Forms\frmMusicDL.Designer.cs">
       <DependentUpon>frmMusicDL.cs</DependentUpon>
     </Compile>
-    <Compile Include="clsIniData.cs" />
-    <Compile Include="frmPathSetting.cs">
+    <Compile Include="Services\clsIniData.cs" />
+    <Compile Include="Forms\frmPathSetting.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmPathSetting.Designer.cs">
+    <Compile Include="Forms\frmPathSetting.Designer.cs">
       <DependentUpon>frmPathSetting.cs</DependentUpon>
     </Compile>
-    <Compile Include="Program.cs" />
+    <Compile Include="App\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="frmTitle.cs">
+    <Compile Include="Forms\frmTitle.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmTitle.Designer.cs">
+    <Compile Include="Forms\frmTitle.Designer.cs">
       <DependentUpon>frmTitle.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="frmHelp.resx">
+    <Compile Include="Forms\frmKaisuu.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\frmKaisuu.Designer.cs">
+      <DependentUpon>frmKaisuu.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Forms\frmHelp.resx">
       <DependentUpon>frmHelp.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmMusicDL.resx">
+    <EmbeddedResource Include="Forms\frmMusicDL.resx">
       <DependentUpon>frmMusicDL.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmPathSetting.resx">
+    <EmbeddedResource Include="Forms\frmPathSetting.resx">
       <DependentUpon>frmPathSetting.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -166,8 +174,11 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmTitle.resx">
+    <EmbeddedResource Include="Forms\frmTitle.resx">
       <DependentUpon>frmTitle.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\frmKaisuu.resx">
+      <DependentUpon>frmKaisuu.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="..\.editorconfig">
       <Link>.editorconfig</Link>
@@ -208,6 +219,10 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="image\" />
+    <Folder Include="App\" />
+    <Folder Include="Models\" />
+    <Folder Include="Forms\" />
+    <Folder Include="Services\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="download-arrow.ico" />

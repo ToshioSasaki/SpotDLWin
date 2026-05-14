@@ -55,6 +55,7 @@ namespace MusicDLWin
             this.picturePlayList = new System.Windows.Forms.PictureBox();
             this.pictureLinkAddress = new System.Windows.Forms.PictureBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.checkBoxSpotifyAuth = new System.Windows.Forms.CheckBox();
             this.Time = new System.Windows.Forms.Timer(this.components);
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -283,6 +284,19 @@ namespace MusicDLWin
             this.pictureBox1.TabIndex = 33;
             this.pictureBox1.TabStop = false;
             // 
+            // checkBoxSpotifyAuth
+            // 
+            this.checkBoxSpotifyAuth.AutoSize = true;
+            this.checkBoxSpotifyAuth.BackColor = System.Drawing.Color.Transparent;
+            this.checkBoxSpotifyAuth.ForeColor = System.Drawing.Color.White;
+            this.checkBoxSpotifyAuth.Location = new System.Drawing.Point(6, 321);
+            this.checkBoxSpotifyAuth.Name = "checkBoxSpotifyAuth";
+            this.checkBoxSpotifyAuth.Size = new System.Drawing.Size(147, 16);
+            this.checkBoxSpotifyAuth.TabIndex = 36;
+            this.checkBoxSpotifyAuth.Text = "Spotify認証を使う";
+            this.checkBoxSpotifyAuth.UseVisualStyleBackColor = false;
+            this.checkBoxSpotifyAuth.CheckedChanged += new System.EventHandler(this.checkBoxSpotifyAuth_CheckedChanged);
+            // 
             // Time
             // 
             this.Time.Tick += new System.EventHandler(this.Time_Tick);
@@ -323,6 +337,7 @@ namespace MusicDLWin
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.pictureLinkAddress);
             this.Controls.Add(this.picturePlayList);
+            this.Controls.Add(this.checkBoxSpotifyAuth);
             this.Controls.Add(this.PrgBar);
             this.Controls.Add(this.StopButton);
             this.Controls.Add(this.ResultText);
@@ -371,6 +386,7 @@ namespace MusicDLWin
         private System.Windows.Forms.PictureBox picturePlayList;
         private System.Windows.Forms.PictureBox pictureLinkAddress;
         private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.CheckBox checkBoxSpotifyAuth;
         private System.Windows.Forms.ToolStripMenuItem 試行回数ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem 一括ｲﾝｽﾄｰﾙToolStripMenuItem;

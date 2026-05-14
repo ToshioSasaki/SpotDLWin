@@ -127,7 +127,7 @@ public class clsInstall : IDisposable
 
         messageDisplayer.UpdateRichTextBox("▶spotdlと依存パッケージ(spotipy, requests, urllib3)をインストール中...");
         messageDisplayer.UpdateRichTextBox("▶これには数分かかる場合があります。お待ちください...");
-        await RunCommandAsync(pythonExe, "-m pip install spotdl spotipy requests urllib3", 600);
+        await RunCommandAsync(pythonExe, "-m pip install -U spotdl", 600);
 
         messageDisplayer.UpdateRichTextBox("✅spotdlと依存パッケージのインストールが完了しました。");
 
@@ -298,6 +298,13 @@ public class clsInstall : IDisposable
         string ffmpegUrl = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip";
         string zipPath = Path.Combine(appBasePath, "ffmpeg.zip");
         string ffmpegExtractPath = Path.Combine(appBasePath, "ffmpeg");
+        string ffmpegExe = Path.Combine(ffmpegExtractPath, "ffmpeg.exe");
+
+        if (File.Exists(ffmpegExe))
+        {
+            messageDisplayer.UpdateRichTextBox("✅ FFmpegは既にインストール済みです。スキップします。");
+            return await Task.FromResult(true);
+        }
 
         try
         {
@@ -602,7 +609,7 @@ public class clsInstall : IDisposable
         try
         {
             messageDisplayer.UpdateRichTextBox("▶spotdlを最新版にアップデート中...");
-            await RunCommandAsync(pythonExe, "-m pip install --upgrade spotdl", 300);
+            await RunCommandAsync(pythonExe, "-m pip install -U spotdl", 300);
             messageDisplayer.UpdateRichTextBox("✅spotdlのアップデートが完了しました。");
             return true;
         }
